@@ -59,11 +59,15 @@ def set_url_label(label: QLabel, path: pathlib.Path):
         raise ValueError(
             f"QLabel with disabled openExternalLinks property used to display an external URL. This won’t work, so "
             f"fail now. Label: {label}, Text: {label.text()}")
-    label.setText(f"""<a href="{url.toString():s}">{path:s}</a>""")
+    label.setText(f"""<a href="{url.path(QUrl.FullyEncoded):s}">{path:s}</a>""")
 
 
 @functools.lru_cache()
 def load_icon(name: str) -> QIcon:
+    """
+    Load a QIcon with the given file name. Files are loaded from the ICON_PATH_PREFIX, which depends on the installation
+    style.
+    """
     file_path = ICON_PATH_PREFIX + "/" + name
     icon = QIcon(file_path)
     if not icon.availableSizes() and file_path.endswith(".svg"):
@@ -79,13 +83,13 @@ def load_icon(name: str) -> QIcon:
     return icon
 
 
-def _get_ui_qfile(name: str):
+def _get_ui_qfile(name: str) -> QFile:
     """
     Returns an opened, read-only QFile for the given QtDesigner UI file name. Expects a plain name like "main_window".
     The file ending and resource path is added automatically.
-    Raises FileNotFoundError, if the given ui file does not exist.
-    :param name:
-    :return:
+    :param name: UI file name
+    :return: Opened QFile instance
+    :raises FileNotFoundError: If the given ui file does not exist.
     """
     file_path = f"{RESOURCE_PATH_PREFIX}/ui/{name}.ui"
     file = QFile(file_path)
