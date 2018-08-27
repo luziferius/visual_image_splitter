@@ -26,7 +26,8 @@ setup(
     name=project_name,
     packages=find_packages(),
     # add required packages to install_requires list
-    # install_requires=["package", "package2"],
+    install_requires=["PyQt5"],
+    test_requires=["pyhamcrest"],
     entry_points={
         "console_scripts": [
             "{project_name} = {project_name}.{project_name}:main".format(project_name=project_name)
