@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # Copyright (C) 2018 Thomas Hess <thomas.hess@udo.edu>
 
 # This program is free software: you can redistribute it and/or modify
@@ -14,19 +13,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import visual_image_splitter.application
+from PyQt5.QtWidgets import QWidget
 
-__version__ = "0.0.1"
-
-
-PROGRAMNAME = "visual_image_splitter"
-VERSION = __version__
-COPYRIGHT = "(C) 2018 Thomas Hess"
+from .common import inherits_from_ui_file_with_name
 
 
-def main():
-    visual_image_splitter.application.Application()
+class MainWindow(*inherits_from_ui_file_with_name("main_window")):
 
-
-if __name__ == "__main__": 
-    main()
+    def __init__(self, parent: QWidget=None):
+        super(MainWindow, self).__init__(parent)
+        self.setupUi(self)

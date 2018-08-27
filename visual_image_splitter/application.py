@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # Copyright (C) 2018 Thomas Hess <thomas.hess@udo.edu>
 
 # This program is free software: you can redistribute it and/or modify
@@ -14,19 +13,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import visual_image_splitter.application
+import sys
+import typing
 
-__version__ = "0.0.1"
+from PyQt5.QtWidgets import QApplication, QMainWindow
 
-
-PROGRAMNAME = "visual_image_splitter"
-VERSION = __version__
-COPYRIGHT = "(C) 2018 Thomas Hess"
-
-
-def main():
-    visual_image_splitter.application.Application()
+from visual_image_splitter.argument_parser import parse_arguments
+import visual_image_splitter.logger
+import visual_image_splitter.ui.main_window
 
 
-if __name__ == "__main__": 
-    main()
+class Application(QApplication):
+
+    def __init__(self, argv: typing.List[str]=sys.argv):
+
+        super(Application, self).__init__(argv)
+        self.args = parse_arguments()
+        visual_image_splitter.logger.configure_root_logger(self.args)
+        self.main_window: QMainWindow = visual_image_splitter.ui.main_window.MainWindow()
+        self.main_window.show()
+        self.exec_()
