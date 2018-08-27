@@ -36,6 +36,16 @@ def generate_argument_parser() -> argparse.ArgumentParser:
         action="version",
         version=f"visual_image_splitter Version {visual_image_splitter.visual_image_splitter.__version__}"
     )
+    parser.add_argument(
+        "-V", "--verbose",
+        action="store_true",
+        help="Increase output verbosity. Also show debug messages on the standard output."
+    )
+    parser.add_argument(
+        "--cutelog-integration",
+        action="store_true",
+        help="Connect to a running cutelog instance with default settings to display the full program log."
+    )
     return parser
 
 
