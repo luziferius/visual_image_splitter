@@ -21,6 +21,9 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 from visual_image_splitter.argument_parser import parse_arguments
 import visual_image_splitter.logger
 import visual_image_splitter.ui.main_window
+import visual_image_splitter.model.model
+
+logger = visual_image_splitter.logger.get_logger("Application")
 
 
 class Application(QApplication):
@@ -30,6 +33,13 @@ class Application(QApplication):
         super(Application, self).__init__(argv)
         self.args = parse_arguments()
         visual_image_splitter.logger.configure_root_logger(self.args)
+        logger.info("Starting visual_image_splitter")
+        self.model: visual_image_splitter.model.model.Model = visual_image_splitter.model.model.Model(self.args, self)
         self.main_window: QMainWindow = visual_image_splitter.ui.main_window.MainWindow()
         self.main_window.show()
+        logger.debug("Initialisation done. Starting event loop.")
         self.exec_()
+
+    def shutdown(self):
+        self.closeAllWindows()
+        self.quit()
