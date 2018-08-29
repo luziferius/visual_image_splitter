@@ -26,8 +26,10 @@ setup(
     name=project_name,
     packages=find_packages(),
     # add required packages to install_requires list
-    #install_requires=["PyQt5"],
+    # install_requires=["PyQt5"],
+    setup_requires=["pytest-runner"],
     tests_require=["pytest", "pyhamcrest"],
+    test_suite="pytest",
     entry_points={
         "console_scripts": [
             "{project_name} = {project_name}.{project_name}:main".format(project_name=project_name)
@@ -36,6 +38,7 @@ setup(
     version=version,
     description=description,
     long_description=long_description,
+    python_requires=">=3.6",
     author="Thomas Hess",
     author_email="thomas.hess@udo.edu",
     url="http://Project.url.here",
