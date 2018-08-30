@@ -32,6 +32,20 @@ def generate_argument_parser() -> argparse.ArgumentParser:
              "optional, as additional images can be loaded at runtime later."
     )
     parser.add_argument(
+        "-s", "--selection",
+        action="append",
+        nargs=4,
+        dest="selections",
+        # metavar=("[-]x1[%]", "[-]y1[%]", "[+|-]x2[%]", "[+|-]y2[%]"),  # TODO: This crashes the argument parser?
+        metavar=("x1[%]", "y1[%]", "x2[%]", "y2[%]"),
+        help="This argument can be specified multiple times. Specify one or more selections that will be applied to "
+             "each image loaded. The first two values specify the selection anchor point. If negative, the right "
+             "and bottom border will be used as a reference. The second pair specifies the second anchor point. "
+             "If a sign (+ or -) is given for a value, it is treated as relative to the first anchor point. "
+             "If a percent sign "
+             "is given for any value, the value is interpreted as a percentage of the actual image widths and heights."
+    )
+    parser.add_argument(
         "-v", "--version",
         action="version",
         version=f"visual_image_splitter Version {visual_image_splitter.visual_image_splitter.__version__}"
