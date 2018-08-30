@@ -36,7 +36,16 @@ class Image(QObject):
         self.thumbnails: typing.Dict[Rectangle, Thumbnail] = {}
         self.output_path: Path = source_file.parent
         self.image_data: QImage = None
+        self._width: int = None
+        self._height: int = None
         logger.info(f"Created Image instance with source file: {source_file}")
+
+    def load_meta_data(self):
+        if not self.has_image_data:
+            self.load_image_data()
+        self._width = self.image_data.width()
+        self._height = self.image_data.height()
+        self.clear_image_data()
 
     def add_selection(self, selection: Rectangle):
         """
@@ -88,6 +97,14 @@ class Image(QObject):
         else:
             del self.thumbnails[self.selections[selection]]
             del self.selections[selection]
+
+    @property
+    def width(self) -> int:
+        return self._width
+
+    @property
+    def height(self) -> int:
+        return self._height
 
     def write_output(self):
         """
