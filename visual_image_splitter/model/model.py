@@ -117,6 +117,7 @@ class Model(QAbstractTableModel):
         for selection in self.predefined_selections:
             image.add_selection(selection.to_rectangle(image.width, image.height))
         self.images.append(image)
+        image.clear_image_data()
 
     def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
         return len(self.images)
@@ -149,3 +150,13 @@ class Model(QAbstractTableModel):
         else:
             # Invalid column
             return QVariant()
+
+    def headerData(self, section: int, orientation: Qt.Orientation, role: int = Qt.DisplayRole):
+        if role == Qt.DisplayRole and orientation == Qt.Horizontal:
+            if section == 0:
+                return QVariant("Image")
+            elif section == 1:
+                return QVariant("Selections")
+            elif section == 2:
+                return QVariant("Output path")
+        return QVariant()
