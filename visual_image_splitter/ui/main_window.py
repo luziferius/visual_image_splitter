@@ -29,13 +29,14 @@ class MainWindow(*inherits_from_ui_file_with_name("main_window")):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
         self.dirty: bool = False
+        self.opened_images_list_view.setModel(QApplication.instance().model)
 
     def closeEvent(self, event: QCloseEvent):
         """
         This function is automatically called when the window is closed using the close [X] button in the window
         decorations or by right clicking in the system window list and using the close action, or similar ways to close
         the window.
-        Just ignore this event and simulate that the user used the action_close_window instead.
+        Just ignore this event and simulate that the user used the action_quit instead.
 
         To quote the Qt5 QCloseEvent documentation: If you do not want your widget to be hidden, or want some special
         handling, you should reimplement the event handler and ignore() the event.
