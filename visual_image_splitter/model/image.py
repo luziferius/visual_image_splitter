@@ -38,6 +38,7 @@ class Image(QObject):
         self.image_data: QImage = None
         self._width: int = None
         self._height: int = None
+        self.load_meta_data()
         logger.info(f"Created Image instance with source file: {source_file}")
 
     def load_meta_data(self):
@@ -45,7 +46,6 @@ class Image(QObject):
             self.load_image_data()
         self._width = self.image_data.width()
         self._height = self.image_data.height()
-        self.clear_image_data()
 
     def add_selection(self, selection: Rectangle):
         """
@@ -66,7 +66,7 @@ class Image(QObject):
         Loads the image data from disk. This has to be called when the file content needs to be accessed.
         :return:
         """
-        logger.info(f"Requested loading image data from the hard disk. File: {self.image_path}")
+        logger.debug(f"Requested loading image data from the hard disk. File: {self.image_path}")
         image_reader = QImageReader(str(self.image_path))
         if image_reader.canRead():
             logger.debug("Image data can be read, performing file reading…")
@@ -83,7 +83,7 @@ class Image(QObject):
         """Images can be large at high resolutions, a 600DPI scanned image can be over 100MiB in size. Keeping hundreds
         loaded at runtime is infeasible, so the image data has to be cleared if not used."""
         if self.image_data is not None:
-            logger.info(f"Deleting loaded image file data for Image {self.image_path}.")
+            logger.debug(f"Deleting loaded image file data for Image {self.image_path}.")
             self.image_data = None
 
     def remove_selection(self, selection: typing.Union[int, Rectangle]):
