@@ -27,7 +27,6 @@ class Rectangle:
         self.top_left, self.bottom_right = Rectangle._normalize(point1, point2)
         # Not using QRect(QPoint, QPoint), constructor, because:
 
-
     @staticmethod
     def _normalize(point1: Point, point2: Point) -> typing.Tuple[Point, Point]:
         """
