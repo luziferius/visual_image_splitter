@@ -23,7 +23,7 @@ def generate_argument_parser() -> argparse.ArgumentParser:
     description = "This program takes pictures and cuts them into pieces. It can be used to split scanned images " \
                   "containing multiple images into the individual parts."
 
-    parser = argparse.ArgumentParser(description=description)
+    parser = argparse.ArgumentParser(description=description, fromfile_prefix_chars="@")
     parser.add_argument(
         "images",
         nargs="*",
