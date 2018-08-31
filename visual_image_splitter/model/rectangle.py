@@ -48,6 +48,14 @@ class Rectangle:
             QSize(self.bottom_right.x-self.top_left.x, self.bottom_right.y-self.top_left.y)
         )
 
+    @property
+    def width(self):
+        return self.bottom_right.x - self.top_left.x
+
+    @property
+    def height(self):
+        return self.bottom_right.y - self.top_left.y
+
     def __repr__(self):
         return f"Rectangle({self.top_left}, {self.bottom_right})"
 
