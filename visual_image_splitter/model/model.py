@@ -136,6 +136,8 @@ class Model(QAbstractTableModel):
         else:
             if role == Qt.DisplayRole:
                 return self._get_column_display_data_for_row(index.column(), image)
+            elif role == Qt.BackgroundRole:
+                return self._get_background_data_for_row(index.column(), image)
             else:
                 return QVariant()
 
@@ -149,6 +151,13 @@ class Model(QAbstractTableModel):
             return QVariant(str(image.output_path))
         else:
             # Invalid column
+            return QVariant()
+
+    @staticmethod
+    def _get_background_data_for_row(column: int, image: Image) -> QVariant:
+        if column == 0:
+            return QVariant(image.low_resolution_image)
+        else:
             return QVariant()
 
     def headerData(self, section: int, orientation: Qt.Orientation, role: int = Qt.DisplayRole):
