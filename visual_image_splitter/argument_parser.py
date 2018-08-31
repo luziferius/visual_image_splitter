@@ -36,6 +36,7 @@ def generate_argument_parser() -> argparse.ArgumentParser:
         action="append",
         nargs=4,
         dest="selections",
+        default=[],
         # metavar=("[-]x1[%]", "[-]y1[%]", "[+|-]x2[%]", "[+|-]y2[%]"),  # TODO: This crashes the argument parser?
         metavar=("x1[%]", "y1[%]", "x2[%]", "y2[%]"),
         help="This argument can be specified multiple times. Specify one or more selections that will be applied to "
