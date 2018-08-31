@@ -17,7 +17,7 @@ from pathlib import Path
 import typing
 
 from PyQt5.QtCore import pyqtSignal, QObject
-from PyQt5.QtGui import QImage, QImageReader, QImageWriter
+from PyQt5.QtGui import QImage, QImageReader, QImageWriter, QPixmap
 
 from .rectangle import Rectangle
 from ._logger import get_logger
@@ -33,7 +33,8 @@ class Image(QObject):
         super(Image, self).__init__(parent)
         self.image_path: Path = source_file.expanduser()
         self.selections: typing.List[Rectangle] = []
-        self.thumbnails: typing.Dict[Rectangle, Thumbnail] = {}
+        self.thumbnails: typing.Dict[Rectangle, QPixmap] = {}
+        self.low_resolution_image: QPixmap = None
         self.output_path: Path = source_file.parent
         self.image_data: QImage = None
         self._width: int = None
@@ -46,6 +47,8 @@ class Image(QObject):
             self.load_image_data()
         self._width = self.image_data.width()
         self._height = self.image_data.height()
+        logger.debug(f"Scaling low resolution image to resolution: {self._scaled_to_resolution(800)}")
+        self.low_resolution_image = QPixmap.fromImage(self.image_data.scaled(*self._scaled_to_resolution(800)))
 
     def add_selection(self, selection: Rectangle):
         """
@@ -55,7 +58,7 @@ class Image(QObject):
         """
         logger.info(f"Adding a new selection: {selection}")
         self.selections.append(selection)
-        self.thumbnails[selection] = Thumbnail(self, selection)
+        self.thumbnails[selection] = self.low_resolution_image.copy(selection.as_qrect)
 
     @property
     def has_image_data(self) -> bool:
@@ -143,22 +146,15 @@ class Image(QObject):
         path = self.output_path / f"{self.image_path.stem}_{selection_index:05}{self.image_path.suffix}"
         return str(path)
 
+    def _scaled_to_resolution(self, maximum: int=1000):
+        scaling_factor = maximum / max(self.width, self.height)
+        if scaling_factor > 1:
+            return self.width, self.height
+        return self.width * scaling_factor, self.height * scaling_factor
+
     def __repr__(self):
         return f"Image({self.image_path}, selection_count={len(self.selections)}, " \
                f"selections={self.selections}, output_path={self.output_path})"
 
     def __str__(self):
         return repr(self)
-
-
-class Thumbnail:
-    
-    def __init__(self, source: Image, boundary: Rectangle=None):
-        """
-
-        :param source: The source image
-        :param boundary: A Rectangle specifying the thumbnailed image part, clipped by the source dimensions.
-        If not given, the whole source image is used.
-        """
-        self.source_image = source
-        self.boundary = boundary
