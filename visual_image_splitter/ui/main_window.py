@@ -15,9 +15,10 @@
 
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtWidgets import QWidget, QApplication
+from PyQt5.QtWidgets import QWidget, QApplication, QTableView, QGraphicsScene
 
 from .common import inherits_from_ui_file_with_name
+from visual_image_splitter.ui.selection_editor import SelectionEditor
 from ._logger import get_logger
 
 logger = get_logger("main_window")
@@ -29,7 +30,12 @@ class MainWindow(*inherits_from_ui_file_with_name("main_window")):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
         self.dirty: bool = False
+        self.image_view: SelectionEditor
+        self.opened_images_list_view: QTableView
+        self.opened_images_list_view.verticalHeader().hide()
+        self.opened_images_list_view.selectionModel()
         self.opened_images_list_view.setModel(QApplication.instance().model)
+        self.opened_images_list_view.selectionModel().currentChanged.connect(self.image_view.on_image_selection_changed)
 
     def closeEvent(self, event: QCloseEvent):
         """
