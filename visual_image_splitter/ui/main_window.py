@@ -15,11 +15,12 @@
 
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtWidgets import QWidget, QApplication, QTableView, QGraphicsScene
+from PyQt5.QtWidgets import QWidget, QApplication, QTableView
 
 from .common import inherits_from_ui_file_with_name
 from visual_image_splitter.ui.selection_editor import SelectionEditor
 from ._logger import get_logger
+from visual_image_splitter.ui.open_images_dialog import OpenImagesDialog
 
 logger = get_logger("main_window")
 
@@ -33,9 +34,9 @@ class MainWindow(*inherits_from_ui_file_with_name("main_window")):
         self.image_view: SelectionEditor
         self.opened_images_list_view: QTableView
         self.opened_images_list_view.verticalHeader().hide()
-        self.opened_images_list_view.selectionModel()
         self.opened_images_list_view.setModel(QApplication.instance().model)
         self.opened_images_list_view.selectionModel().currentChanged.connect(self.image_view.on_image_selection_changed)
+
 
     def closeEvent(self, event: QCloseEvent):
         """
@@ -57,3 +58,24 @@ class MainWindow(*inherits_from_ui_file_with_name("main_window")):
             # TODO: Unsaved changes. Ask the user what to do: Save and exit, Discard and exit, or keep running?
             pass
         QApplication.instance().shutdown()
+
+    @pyqtSlot()
+    def on_action_open_triggered(self):
+        open_images_dialog = OpenImagesDialog(self)
+        if open_images_dialog.exec_() == OpenImagesDialog.Accepted:
+            QApplication.instance().model.open_images(open_images_dialog.selected_paths())
+
+    @pyqtSlot()
+    def on_action_save_current_triggered(self):
+        pass
+
+    @pyqtSlot()
+    def on_action_save_all_triggered(self):
+        pass
+
+    @pyqtSlot()
+    def on_action_close_current_triggered(self):
+        pass
+
+    def _open_images(self):
+        pass

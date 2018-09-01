@@ -29,7 +29,6 @@ class OpenImagesDialog(QFileDialog):
     """
     This Dialog is used to open and load new image files.
     """
-    opened_files = pyqtSignal(list)
 
     def __init__(self, parent: QWidget=None):
         super(OpenImagesDialog, self).__init__(
@@ -37,6 +36,7 @@ class OpenImagesDialog(QFileDialog):
             "Open Image files",
             filter=self._get_supported_image_format_filter()
         )
+        self.setFileMode(QFileDialog.ExistingFiles)  # Allow selecting multiple existing files.
 
     @staticmethod
     def _get_supported_image_format_filter() -> str:
@@ -71,11 +71,7 @@ class OpenImagesDialog(QFileDialog):
         supported_formats = sorted(list(supported_input_formats.intersection(supported_output_formats)))
         return supported_formats
 
-    def accept(self):
-        """
-        Handle selected files. Emits opened_files signal with a List[pathlib.Path], containing all opened files.
-        """
+    def selected_paths(self) -> typing.List[Path]:
         file_path_string_list = self.selectedFiles()
-        path_list = [Path(file_path_string) for file_path_string in file_path_string_list]
-        self.opened_files.emit(path_list)
-        super(OpenImagesDialog, self).accept()
+        return [Path(file_path_string) for file_path_string in file_path_string_list]
+
