@@ -4,3 +4,4 @@ __pycache__
 .eggs
 .cache
 visual_image_splitter.egg-info
+*.pyc
