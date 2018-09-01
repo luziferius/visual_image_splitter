@@ -72,7 +72,7 @@ class SelectionEditor(QGraphicsView):
         scaling_factor: float = self.scene().width() / current.sibling(current.row(), 0).data(Qt.UserRole).width
 
         if scaling_factor >= 1:
-            result = QRectF(rectangle.as_qrect())
+            result = QRectF(rectangle.as_qrect)
         else:
             result = QRectF(
                 rectangle.top_left.x*scaling_factor,
