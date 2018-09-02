@@ -125,6 +125,29 @@ class Model(QAbstractTableModel):
         image.clear_image_data()
         self.endInsertRows()
 
+    def save_and_close_all_images(self):
+        """Save and close all images. This writes all selections to separate files, then closes all files."""
+        logger.info("Writing all selections and closing all opened image files.")
+        self.beginRemoveRows(QModelIndex(), 0, self.rowCount()-1)
+        for image in self.images:
+            logger.debug(f"Writing output files for {image}")
+            image.write_output()
+        self.images.clear()
+        self.endRemoveRows()
+
+    def close_image(self, model_index: QModelIndex, save_selections: bool=True):
+        """Save and close a single image file."""
+        if model_index.isValid() and not model_index.parent().isValid() and model_index.row() < self.rowCount():
+            row = model_index.row()
+            logger.info(f"Closing file at row {row}. File: {self.images[row]}, write selections: {save_selections}")
+            self.beginRemoveRows(QModelIndex(), row, row)
+            if save_selections:
+                self.images[row].write_output()
+            del self.images[row]
+            self.endRemoveRows()
+        else:
+            logger.warning(f"Got invalid model index: {model_index}")
+
     def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
         return len(self.images)
 
