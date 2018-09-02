@@ -19,7 +19,6 @@ from PyQt5.QtCore import QRectF, QRect, QModelIndex, Qt
 from PyQt5.QtGui import QPixmap, QPen, QColor, QBrush
 
 from visual_image_splitter.model.rectangle import Rectangle
-from visual_image_splitter.model.image import Image
 
 from ._logger import get_logger
 logger = get_logger("selection_editor")
@@ -44,11 +43,22 @@ class SelectionEditor(QGraphicsView):
             if data is not None:
                 self.load_image(data)
             self.load_selections(current)
+        else:
+            logger.debug("Selection changed to an invalid index. Clearing scene.")
+            self.clear()
 
     def load_image(self, image: QPixmap):
         new_scene = QGraphicsScene(QRectF(image.rect()), parent=self)
         new_scene.addPixmap(image)
         logger.info(f"Loaded scene: image-dimensions={image.rect().width(), image.rect().height()}")
+        self._replace_scene(new_scene)
+
+    def clear(self):
+        self._replace_scene(QGraphicsScene(self))
+        logger.info("Cleared currently opened scene")
+
+    def _replace_scene(self, new_scene: QGraphicsScene):
+        # TODO: Must the old scene be destroyed manually or is this ok? Then this setter can be removed
         self.setScene(new_scene)
 
     def load_selections(self, current: QModelIndex):
