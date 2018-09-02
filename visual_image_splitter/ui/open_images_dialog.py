@@ -16,7 +16,6 @@
 from pathlib import Path
 import typing
 
-from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QImageReader, QImageWriter
 from PyQt5.QtWidgets import QFileDialog, QWidget
 
@@ -74,4 +73,3 @@ class OpenImagesDialog(QFileDialog):
     def selected_paths(self) -> typing.List[Path]:
         file_path_string_list = self.selectedFiles()
         return [Path(file_path_string) for file_path_string in file_path_string_list]
-
