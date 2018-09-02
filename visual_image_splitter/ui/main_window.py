@@ -37,7 +37,6 @@ class MainWindow(*inherits_from_ui_file_with_name("main_window")):
         self.opened_images_list_view.setModel(QApplication.instance().model)
         self.opened_images_list_view.selectionModel().currentChanged.connect(self.image_view.on_image_selection_changed)
 
-
     def closeEvent(self, event: QCloseEvent):
         """
         This function is automatically called when the window is closed using the close [X] button in the window
@@ -67,15 +66,14 @@ class MainWindow(*inherits_from_ui_file_with_name("main_window")):
 
     @pyqtSlot()
     def on_action_save_current_triggered(self):
-        pass
+        selected_image = self.opened_images_list_view.selectionModel().currentIndex()
+        QApplication.instance().model.close_image(selected_image, save_selections=True)
 
     @pyqtSlot()
     def on_action_save_all_triggered(self):
-        pass
+        QApplication.instance().model.save_and_close_all_images()
 
     @pyqtSlot()
     def on_action_close_current_triggered(self):
-        pass
-
-    def _open_images(self):
-        pass
+        selected_image = self.opened_images_list_view.selectionModel().currentIndex()
+        QApplication.instance().model.close_image(selected_image, save_selections=False)

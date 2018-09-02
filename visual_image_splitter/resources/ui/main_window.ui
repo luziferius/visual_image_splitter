@@ -31,6 +31,16 @@
       </property>
      </widget>
     </item>
+    <item row="0" column="2">
+     <widget class="QTableView" name="selection_list_view">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>5</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
     <item row="0" column="0">
      <widget class="QTableView" name="opened_images_list_view">
       <property name="sizePolicy">
@@ -47,16 +57,6 @@
       </property>
       <property name="selectionBehavior">
        <enum>QAbstractItemView::SelectRows</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="2">
-     <widget class="QTableView" name="selection_list_view">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>5</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
       </property>
      </widget>
     </item>
@@ -118,10 +118,11 @@
   </action>
   <action name="action_open">
    <property name="icon">
-    <iconset theme="document-open"/>
+    <iconset theme="document-open">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Open</string>
+    <string>&amp;Open</string>
    </property>
    <property name="toolTip">
     <string>Open image files</string>
@@ -132,10 +133,11 @@
   </action>
   <action name="action_save_current">
    <property name="icon">
-    <iconset theme="document-save"/>
+    <iconset theme="document-save">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Save</string>
+    <string>&amp;Save</string>
    </property>
    <property name="toolTip">
     <string>Extract and save all selections for the currently selected image</string>
@@ -146,10 +148,11 @@
   </action>
   <action name="action_save_all">
    <property name="icon">
-    <iconset theme="document-save-all"/>
+    <iconset theme="document-save-all">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Save All</string>
+    <string>Save &amp;All</string>
    </property>
    <property name="toolTip">
     <string>Extract and save all selections for all opened images</string>
@@ -160,7 +163,8 @@
   </action>
   <action name="action_close_current">
    <property name="icon">
-    <iconset theme="document-close"/>
+    <iconset theme="document-close">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Close current image</string>
