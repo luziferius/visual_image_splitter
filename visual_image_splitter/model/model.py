@@ -102,8 +102,12 @@ class Model(QAbstractTableModel):
         This automatically adds the selections predefined on the command line to each image file.
         """
         for image_path_str in self.args.images:
-            image_path = pathlib.Path(image_path_str).expanduser()
+            image_path = pathlib.Path(image_path_str).expanduser().resolve()
             logger.debug(f"Create Image instance with Path: '{image_path}'")
+            self.open_image(image_path)
+
+    def open_images(self, path_list: typing.Iterable[pathlib.Path]):
+        for image_path in path_list:
             self.open_image(image_path)
 
     def open_image(self, path: pathlib.Path):
@@ -111,6 +115,7 @@ class Model(QAbstractTableModel):
         Open the image with the given path.
         This automatically adds the selections predefined on the command line to the given image file.
         """
+        self.beginInsertRows(QModelIndex(), len(self.images), len(self.images))
         image = Image(path, self)
         logger.debug(f"Image instance created. Adding predefined selections as given on the command line: "
                      f"{self.predefined_selections}")
@@ -118,6 +123,7 @@ class Model(QAbstractTableModel):
             image.add_selection(selection.to_rectangle(image.width, image.height))
         self.images.append(image)
         image.clear_image_data()
+        self.endInsertRows()
 
     def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
         return len(self.images)
