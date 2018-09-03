@@ -12,6 +12,7 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+
 import typing
 
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsSceneMouseEvent, QGraphicsRectItem
@@ -36,21 +37,24 @@ class SelectionScene(QGraphicsScene):
         self.new_selection_origin: QPointF = None
 
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent):
-        self.new_selection_origin = event.scenePos()
-        x = self.new_selection_origin.x()
-        y = self.new_selection_origin.y()
-        scene_logger.info(
-            f"Beginning to draw a new selection: "
-            f"X={self.new_selection_origin.x()}, Y={self.new_selection_origin.y()}"
-        )
-        self.new_selection_view = QGraphicsRectItem(x, y, 0, 0)
-        self.new_selection_view.setPen(self.default_border_pen)
-        self.new_selection_view.setBrush(self.default_fill_brush)
-        self.addItem(self.new_selection_view)
-        event.accept()
+        if event.button() == Qt.LeftButton and self.new_selection_view is None:
+            self.new_selection_origin = event.scenePos()
+            self._restrict_to_scene_space(self.new_selection_origin)
+            scene_logger.info(
+                f"Beginning to draw a new selection: "
+                f"X={self.new_selection_origin.x()}, Y={self.new_selection_origin.y()}"
+            )
+            self.new_selection_view = QGraphicsRectItem(
+                self.new_selection_origin.x(), self.new_selection_origin.y(), 0, 0
+            )
+            self.new_selection_view.setPen(self.default_border_pen)
+            self.new_selection_view.setBrush(self.default_fill_brush)
+            self.addItem(self.new_selection_view)
+            event.accept()
 
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent):
         point2 = event.scenePos()
+        self._restrict_to_scene_space(point2)
         if self.new_selection_origin is None:
             scene_logger.warning("Move event: Selection origin is None!")
             event.accept()
@@ -64,17 +68,21 @@ class SelectionScene(QGraphicsScene):
         event.accept()
 
     def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent):
-        if self.new_selection_view is not None:
+        if event.button() == Qt.LeftButton and self.new_selection_view is not None:
             # TODO: Instead of discarding the selection, add it to the model. Emit a selection_finished signal?
             self.removeItem(self.new_selection_view)
             self.new_selection_origin = None
             self.new_selection_view = None
-        event.accept()
+            event.accept()
 
     def load_selections(self, current: QModelIndex):
         selections: typing.List[Rectangle] = current.sibling(current.row(), 1).data(Qt.UserRole)
         for rectangle in selections:
             self._draw_rectangle(current, rectangle)
+
+    def _restrict_to_scene_space(self, point: QPointF):
+        point.setX(min(max(point.x(), 0), self.sceneRect().width()))
+        point.setY(min(max(point.y(), 0), self.sceneRect().height()))
 
     def _draw_rectangle(self, current: QModelIndex, rectangle: Rectangle):
         self.addRect(
