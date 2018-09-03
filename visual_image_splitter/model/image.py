@@ -115,6 +115,9 @@ class Image(QObject):
         :return:
         """
         logger.info(f"Starting to extract selections and writing output files for image {self.image_path}")
+        if not self.selections:
+            logger.debug("Image has no selections, do nothing.")
+            return
         if not self.has_image_data:
             self.load_image_data()
         progress_step_size = 100/(len(self.selections)*2)
@@ -127,17 +130,17 @@ class Image(QObject):
         Creates a new image file and writes the content of the given selection to disk.
         :param index: The index of this selection. This is used to build increasing file numbers for the output file.
         :param selection: The selection Rectangle in progress
-        :param progress_step_size: Integer giving the current progress step size per file in percent. Used for
+        :param progress_step_size: Float giving the current progress step size per file in percent. Used for progress
         notifications and logging purposes.
         :return:
         """
         extract = self.image_data.copy(selection.as_qrect)
         self.write_output_progress.emit(int((2 * index - 1) * progress_step_size))
-        logger.debug(f"Extracted selection. Progress: {int((2*index-1)*progress_step_size):2.2f}%")
+        logger.debug(f"Extracted selection. Progress: {(2*index-1)*progress_step_size:2.2f}%")
         writer = QImageWriter(self._get_output_file_name(index))
         if writer.canWrite():
             writer.write(extract)
-            logger.debug(f"Written extracted selection to disk. Progress: {int((2*index)*progress_step_size):2.2f}%")
+            logger.debug(f"Written extracted selection to disk. Progress: {(2*index)*progress_step_size:2.2f}%")
         else:
             logger.warning(f"Image data can not be written! Offending File: {writer.fileName()}")
         self.write_output_progress.emit(int((2 * index) * progress_step_size))
@@ -146,7 +149,7 @@ class Image(QObject):
         path = self.output_path / f"{self.image_path.stem}_{selection_index:05}{self.image_path.suffix}"
         return str(path)
 
-    def _scaled_to_resolution(self, maximum: int=1000):
+    def _scaled_to_resolution(self, maximum: int=1000) -> typing.Tuple[float, float]:
         scaling_factor = maximum / max(self.width, self.height)
         if scaling_factor > 1:
             return self.width, self.height
