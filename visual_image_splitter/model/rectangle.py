@@ -16,7 +16,7 @@
 
 import typing
 
-from PyQt5.QtCore import QRect, QPoint, QSize
+from PyQt5.QtCore import QRect, QPoint, QSize, QRectF
 
 from .point import Point
 
@@ -47,6 +47,10 @@ class Rectangle:
             QPoint(*self.top_left),
             QSize(self.bottom_right.x-self.top_left.x, self.bottom_right.y-self.top_left.y)
         )
+
+    @property
+    def as_qrectf(self):
+        return QRectF(QPoint(*self.top_left), QPoint(*self.bottom_right))
 
     @property
     def width(self):
