@@ -74,9 +74,16 @@ class SelectionScene(QGraphicsScene):
     def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent):
         self.new_selection_view: QGraphicsRectItem
         if event.button() == Qt.LeftButton and self.new_selection_view is not None:
-            # TODO: Instead of discarding the selection, add it to the model. Emit a selection_finished signal?
             absolute_rectangle = self.new_selection_view.mapRectFromScene(self.new_selection_view.rect())
-            self.selection_drawing_finished.emit(absolute_rectangle)
+            if self.is_rectangle_valid_selection(absolute_rectangle):
+                self.selection_drawing_finished.emit(absolute_rectangle)
+            else:
+                scene_logger.info(
+                    f"Discarding invalid selection: "
+                    f"x={absolute_rectangle.x()}, y={absolute_rectangle.y()}, "
+                    f"width={absolute_rectangle.width()}, height={absolute_rectangle.height()}"
+                )
+                self.removeItem(self.new_selection_view)
             self.new_selection_origin = None
             self.new_selection_view = None
             event.accept()
@@ -117,6 +124,15 @@ class SelectionScene(QGraphicsScene):
             scene_logger.debug(f"Scaled {rectangle} to {result.topLeft(), result.bottomRight()}")
         return result
 
+    def is_rectangle_valid_selection(self, selection: QRectF) -> bool:
+        """
+        Returns True, if the given rectangle is a valid selection.
+        A selection is determined to be valid if its width and height is at least 0.5% of the source image or 50 pixels
+        large, whichever comes first
+        """
+        return (selection.width() > self.sceneRect().width() * 0.01 or selection.width() > 50) \
+            and (selection.height() > self.sceneRect().height() * 0.01 or selection.height() > 50)
+
 
 class SelectionEditor(QGraphicsView):
 
@@ -150,8 +166,7 @@ class SelectionEditor(QGraphicsView):
         image_index: QModelIndex = QApplication.instance().get_currently_edited_image()
         model = QApplication.instance().model
         model.add_selection(image_index, self._from_local_coordinates(image_index, local_rectangle))
-
-        logger.info("Selection drawing finished.")
+        logger.info(f"Selection drawing finished: width={local_rectangle.width()}, height={local_rectangle.height()}")
 
     def clear(self):
         self._replace_scene(QGraphicsScene(self))
