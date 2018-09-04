@@ -22,8 +22,14 @@ def generate_argument_parser() -> argparse.ArgumentParser:
     """Generates and returns an ArgumentParser instance."""
     description = "This program takes pictures and cuts them into pieces. It can be used to split scanned images " \
                   "containing multiple images into the individual parts."
+    epilog = "Long arguments can be abbreviated, as long as the abbreviation is unambiguous. Don’t use this feature " \
+             "in scripts, because newly argument switches might break previously valid abbreviations. Arguments can " \
+             "be loaded from files using the @-Notation. Use \"@/path/to/file\" to load arguments from the specified " \
+             "file. The file must contain one argument per line. It may be useful to load a set of selections from a " \
+             "file instead of typing it on the command line, when you can re-use the same set of selections multiple " \
+             "times."
 
-    parser = argparse.ArgumentParser(description=description, fromfile_prefix_chars="@")
+    parser = argparse.ArgumentParser(description=description, fromfile_prefix_chars="@", epilog=epilog)
     parser.add_argument(
         "images",
         nargs="*",
