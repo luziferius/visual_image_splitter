@@ -110,6 +110,17 @@ class Model(QAbstractTableModel):
         for image_path in path_list:
             self.open_image(image_path)
 
+    def add_selection(self, index: QModelIndex, selection: Rectangle):
+        """
+        Add a selection to the referenced image.
+        """
+        image = self.images[index.row()]
+        self.beginInsertRows(index, len(image.selections), len(image.selections))
+        self.dataChanged.emit(self.index(index.row(), 1), self.index(index.row(), 1))  # TODO: Temporary.
+        # TODO: remove emitting dataChanged when the model is a proper tree and the view properly renders it.
+        image.selections.append(selection)
+        self.endInsertRows()
+
     def open_image(self, path: pathlib.Path):
         """
         Open the image with the given path.
@@ -148,15 +159,39 @@ class Model(QAbstractTableModel):
         else:
             logger.warning(f"Got invalid model index: {model_index}")
 
+    def index(self, row: int, column: int, parent: QModelIndex = QModelIndex()) -> QModelIndex:
+        if not self.hasIndex(row, column, parent):
+            return QModelIndex()
+
+        if not parent.isValid() or (parent.isValid() and 1 == parent.column()):
+            return super(Model, self).index(row, column, parent)
+
+        if parent.row() > len(self.images):
+            return QModelIndex()
+
+        child_item = self.images[parent.row()]
+        if len(child_item.selections) > row >= 0 == column:
+            return self.createIndex(row, column, child_item)
+        else:
+            return QModelIndex()
+
     def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
+        if parent.isValid() and not parent.parent().isValid():
+            if parent.column() == 1:
+                try:
+                    return len(self.images[parent.row()].selections)
+                except IndexError:
+                    return 0
         return len(self.images)
 
     def columnCount(self, parent: QModelIndex = QModelIndex()) -> int:
-        return 3
+        if parent.isValid() and parent.column() == 1:
+            return 1
+        else:
+            return 3
 
     def data(self, index: QModelIndex, role: int = Qt.DisplayRole) -> QVariant:
-        if index.row() < 0:
-            # Invalid: negative row.
+        if not index.isValid():
             return QVariant()
         try:
             image = self.images[index.row()]

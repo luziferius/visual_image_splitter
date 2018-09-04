@@ -16,7 +16,7 @@
 import sys
 import typing
 
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication
 
 from visual_image_splitter.argument_parser import parse_arguments
 import visual_image_splitter.logger
@@ -35,7 +35,8 @@ class Application(QApplication):
         visual_image_splitter.logger.configure_root_logger(self.args)
         logger.info("Starting visual_image_splitter")
         self.model: visual_image_splitter.model.model.Model = visual_image_splitter.model.model.Model(self.args, self)
-        self.main_window: QMainWindow = visual_image_splitter.ui.main_window.MainWindow()
+        self.main_window: visual_image_splitter.ui.main_window.MainWindow =\
+            visual_image_splitter.ui.main_window.MainWindow()
         self.main_window.show()
         logger.debug("Initialisation done. Starting event loop.")
         self.exec_()
@@ -43,3 +44,6 @@ class Application(QApplication):
     def shutdown(self):
         self.closeAllWindows()
         self.quit()
+
+    def get_currently_edited_image(self):
+        return self.main_window.opened_images_list_view.currentIndex()

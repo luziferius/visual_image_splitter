@@ -16,10 +16,12 @@
 import typing
 
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsSceneMouseEvent, QGraphicsRectItem
-from PyQt5.QtCore import QRectF, QRect, QModelIndex, Qt, QObject, QPointF
+from PyQt5.QtWidgets import QWidget, QApplication
+from PyQt5.QtCore import QRectF, QModelIndex, Qt, QObject, QPointF, pyqtSignal
 from PyQt5.QtGui import QPixmap, QPen, QColor, QBrush
 
 from visual_image_splitter.model.rectangle import Rectangle
+from visual_image_splitter.model.point import Point
 
 from ._logger import get_logger
 logger = get_logger("selection_editor")
@@ -27,6 +29,8 @@ scene_logger = get_logger("selection_scene")
 
 
 class SelectionScene(QGraphicsScene):
+
+    selection_drawing_finished = pyqtSignal(QRectF)
 
     def __init__(self, scene_rect: QRectF, parent: QObject=None):
         super(SelectionScene, self).__init__(scene_rect, parent)
@@ -68,9 +72,11 @@ class SelectionScene(QGraphicsScene):
         event.accept()
 
     def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent):
+        self.new_selection_view: QGraphicsRectItem
         if event.button() == Qt.LeftButton and self.new_selection_view is not None:
             # TODO: Instead of discarding the selection, add it to the model. Emit a selection_finished signal?
-            self.removeItem(self.new_selection_view)
+            absolute_rectangle = self.new_selection_view.mapRectFromScene(self.new_selection_view.rect())
+            self.selection_drawing_finished.emit(absolute_rectangle)
             self.new_selection_origin = None
             self.new_selection_view = None
             event.accept()
@@ -111,15 +117,11 @@ class SelectionScene(QGraphicsScene):
             scene_logger.debug(f"Scaled {rectangle} to {result.topLeft(), result.bottomRight()}")
         return result
 
-    def _from_local_coordinates(self, rectangle: QRectF) -> QRect:
-        """
-        Scales a floating point rectangle from local coordinates to an integer based rectangle in the source image
-        coordinates.
-        """
-        pass
-
 
 class SelectionEditor(QGraphicsView):
+
+    def __init__(self, parent: QWidget=None):
+        super(SelectionEditor, self).__init__(parent)
 
     def on_image_selection_changed(self, current: QModelIndex, previous: QModelIndex):
         """
@@ -142,6 +144,14 @@ class SelectionEditor(QGraphicsView):
         new_scene.addPixmap(image)
         logger.info(f"Loaded scene: image-dimensions={image.rect().width(), image.rect().height()}")
         self._replace_scene(new_scene)
+        new_scene.selection_drawing_finished.connect(self.on_selection_drawing_finished)
+
+    def on_selection_drawing_finished(self, local_rectangle: QRectF):
+        image_index: QModelIndex = QApplication.instance().get_currently_edited_image()
+        model = QApplication.instance().model
+        model.add_selection(image_index, self._from_local_coordinates(image_index, local_rectangle))
+
+        logger.info("Selection drawing finished.")
 
     def clear(self):
         self._replace_scene(QGraphicsScene(self))
@@ -153,3 +163,20 @@ class SelectionEditor(QGraphicsView):
 
     def load_selections(self, current: QModelIndex):
         self.scene().load_selections(current)
+
+    def _from_local_coordinates(self, image_index: QModelIndex, rectangle: QRectF) -> Rectangle:
+        """
+        Scales a floating point rectangle from local coordinates to an integer based rectangle in the source image
+        coordinates.
+        """
+        image_width = image_index.sibling(image_index.row(), 0).data(Qt.UserRole).width
+        scaling_factor = image_width / self.scene().width()
+
+        return Rectangle(
+            Point(
+                round(rectangle.left()*scaling_factor),
+                round(rectangle.top()*scaling_factor)),
+            Point(
+                round(rectangle.right()*scaling_factor),
+                round(rectangle.bottom()*scaling_factor))
+        )
