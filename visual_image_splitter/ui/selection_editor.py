@@ -127,11 +127,11 @@ class SelectionScene(QGraphicsScene):
     def is_rectangle_valid_selection(self, selection: QRectF) -> bool:
         """
         Returns True, if the given rectangle is a valid selection.
-        A selection is determined to be valid if its width and height is at least 0.5% of the source image or 50 pixels
+        A selection is determined to be valid if its width and height is at least 0.5% of the source image or 20 pixels
         large, whichever comes first
         """
-        return (selection.width() > self.sceneRect().width() * 0.01 or selection.width() > 50) \
-            and (selection.height() > self.sceneRect().height() * 0.01 or selection.height() > 50)
+        return (selection.width() > self.sceneRect().width() * 0.01 or selection.width() > 20) \
+            and (selection.height() > self.sceneRect().height() * 0.01 or selection.height() > 20)
 
 
 class SelectionEditor(QGraphicsView):
