@@ -16,12 +16,13 @@
 import typing
 import pathlib
 
-from PyQt5.QtCore import QObject, QAbstractTableModel, QModelIndex, QVariant, Qt
+from PyQt5.QtCore import QObject, QAbstractTableModel, QModelIndex, QVariant, Qt, QThread, pyqtSignal, QTimer
 
 from .point import Point
 from .rectangle import Rectangle
 from .image import Image
 from ._logger import get_logger
+from .async_io import ModelWorker
 
 logger = get_logger("model")
 
@@ -45,7 +46,7 @@ class Selection(typing.NamedTuple):
     def _parse_first(value: str, image_dimension: int) -> int:
         result = Selection._parse_value(value, image_dimension)
         if result < 0:
-            result = image_dimension + result  # Reminder: Because result is negative, this is the desired substraction
+            result = image_dimension + result  # Reminder: Because result is negative, this is the desired subtraction
         return result
 
     @staticmethod
@@ -53,14 +54,14 @@ class Selection(typing.NamedTuple):
         result = Selection._parse_value(value, image_dimension)
         if result < 0 or value.startswith("+"):
             # Relative to the first anchor, positive or negative
-            # Reminder: if result is negative, this is the intended substraction.
+            # Reminder: if result is negative, this is the intended subtraction.
             result = relative_anchor + result
         return result
 
     @staticmethod
     def _parse_value(value: str, image_dimension: int) -> int:
         if value.endswith("%"):
-            result = int(image_dimension * float(value[:-1]) / 100)
+            result = round(image_dimension * float(value[:-1]) / 100)
         else:
             result = int(value)
         return result
@@ -74,6 +75,11 @@ class Model(QAbstractTableModel):
      - 1: Selection rectangles
      - 3: Output path
     """
+    open_command_line_given_images = pyqtSignal()
+    open_images = pyqtSignal(list)
+    save_and_close_all_images = pyqtSignal()
+    close_image = pyqtSignal(QModelIndex, bool)
+
     def __init__(self, args, parent: QObject=None):
         """
 
@@ -83,17 +89,39 @@ class Model(QAbstractTableModel):
         super(Model, self).__init__(parent)
         self.args = args
         logger.info(f"Creating Model instance. Arguments: {args}")
+        self.worker, self.worker_thread = self._setup_worker_thread()
+
         # The predefined selections is a list of selections given on the command line. These selections are
         # automatically added to each Image file
         logger.info("Loading selections given on the command line")
         self.predefined_selections: typing.List[Selection] = self._create_selections_from_command_line()
         logger.debug(f"Loaded selections: {self.predefined_selections}")
         # Load all given images
-        logger.info("Loading images given on the command line")
         self.images: typing.List[Image] = []
-        self._open_command_line_given_images()
+        # Wait some milliseconds after the main event loop started and then fill the model in the background.
+        # This loads the images in a separate thread and does not block the GUI thread
+        QTimer.singleShot(100, self.open_command_line_given_images.emit)
+
+    def _setup_worker_thread(self) -> typing.Tuple[ModelWorker, QThread]:
+        """
+        Create the worker thread used to perform long running operations in the background.
+        """
+        worker = ModelWorker(self)
+        worker_thread = QThread(self)
+        worker_thread.setObjectName("AsynchronousImageWorker")
+        worker.moveToThread(worker_thread)
+        logger.debug("Created worker thread.")
+        self.open_command_line_given_images.connect(worker.open_command_line_given_images)
+        self.open_images.connect(worker.open_images)
+        self.save_and_close_all_images.connect(worker.save_and_close_all_images)
+        self.close_image.connect(worker.close_image)
+        logger.debug("Connected signals to offload to the worker thread.")
+        worker_thread.start()
+
+        return worker, worker_thread
 
     def _create_selections_from_command_line(self):
+        """Read all selection presets given on the command line."""
         return [Selection(*selection) for selection in self.args.selections]
 
     def _open_command_line_given_images(self):
@@ -101,14 +129,22 @@ class Model(QAbstractTableModel):
         Open all images given as command line arguments.
         This automatically adds the selections predefined on the command line to each image file.
         """
+        logger.info("Loading images given on the command line")
         for image_path_str in self.args.images:
+            if self.worker_thread.isInterruptionRequested():
+                logger.warning("Requested worker thread interruption. Aborting file loading.")
+                break
             image_path = pathlib.Path(image_path_str).expanduser().resolve()
             logger.debug(f"Create Image instance with Path: '{image_path}'")
-            self.open_image(image_path)
+            self._open_image(image_path)
 
-    def open_images(self, path_list: typing.Iterable[pathlib.Path]):
+    def _open_images(self, path_list: typing.Iterable[pathlib.Path]):
+        """
+        Open a list of image files. This function is used by the file open dialog, because it returns a list with
+        selected files.
+        """
         for image_path in path_list:
-            self.open_image(image_path)
+            self._open_image(image_path)
 
     def add_selection(self, index: QModelIndex, selection: Rectangle):
         """
@@ -121,23 +157,30 @@ class Model(QAbstractTableModel):
         image.selections.append(selection)
         self.endInsertRows()
 
-    def open_image(self, path: pathlib.Path):
+    def _open_image(self, path: pathlib.Path):
         """
         Open the image with the given path.
         This automatically adds the selections predefined on the command line to the given image file.
         """
         self.beginInsertRows(QModelIndex(), len(self.images), len(self.images))
-        image = Image(path, self)
+        image = Image(path)  # Don’t set the parent yet. See below.
         logger.debug(f"Image instance created. Adding predefined selections as given on the command line: "
                      f"{self.predefined_selections}")
         for selection in self.predefined_selections:
             image.add_selection(selection.to_rectangle(image.width, image.height))
         self.images.append(image)
         image.clear_image_data()
+        # Image currently belongs to the self.worker_thread that created it.
+        # Move to the main thread, before assigning the parent object, because setting the parent across different
+        # threads is unsupported.
+        image.moveToThread(self.thread())
+        image.setParent(self)
         self.endInsertRows()
 
-    def save_and_close_all_images(self):
-        """Save and close all images. This writes all selections to separate files, then closes all files."""
+    def _save_and_close_all_images(self):
+        """
+        Save and close all images. This writes all selections to separate files, then closes all files.
+        """
         logger.info("Writing all selections and closing all opened image files.")
         self.beginRemoveRows(QModelIndex(), 0, self.rowCount()-1)
         for image in self.images:
@@ -146,7 +189,7 @@ class Model(QAbstractTableModel):
         self.images.clear()
         self.endRemoveRows()
 
-    def close_image(self, model_index: QModelIndex, save_selections: bool=True):
+    def _close_image(self, model_index: QModelIndex, save_selections: bool=True):
         """Save and close a single image file."""
         if model_index.isValid() and not model_index.parent().isValid() and model_index.row() < self.rowCount():
             row = model_index.row()

@@ -35,14 +35,16 @@ class Application(QApplication):
         visual_image_splitter.logger.configure_root_logger(self.args)
         logger.info("Starting visual_image_splitter")
         self.model: visual_image_splitter.model.model.Model = visual_image_splitter.model.model.Model(self.args, self)
-        self.main_window: visual_image_splitter.ui.main_window.MainWindow =\
-            visual_image_splitter.ui.main_window.MainWindow()
+        self.main_window = visual_image_splitter.ui.main_window.MainWindow(self.model)
         self.main_window.show()
         logger.debug("Initialisation done. Starting event loop.")
         self.exec_()
 
     def shutdown(self):
         self.closeAllWindows()
+        self.model.worker_thread.requestInterruption()
+        self.model.worker_thread.quit()
+        self.model.worker_thread.wait()
         self.quit()
 
     def get_currently_edited_image(self):

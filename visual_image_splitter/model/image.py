@@ -16,8 +16,9 @@
 from pathlib import Path
 import typing
 
-from PyQt5.QtCore import pyqtSignal, QObject
+from PyQt5.QtCore import pyqtSignal, QObject, QThread
 from PyQt5.QtGui import QImage, QImageReader, QImageWriter, QPixmap
+from PyQt5.QtWidgets import QApplication
 
 from .rectangle import Rectangle
 from ._logger import get_logger
@@ -111,7 +112,7 @@ class Image(QObject):
 
     def write_output(self):
         """
-        Writes
+        Writes all selections as output files to disk.
         :return:
         """
         logger.info(f"Starting to extract selections and writing output files for image {self.image_path}")
@@ -122,7 +123,11 @@ class Image(QObject):
             self.load_image_data()
         progress_step_size = 100/(len(self.selections)*2)
         self.write_output_progress.emit(0)
+        worker_thread: QThread = QApplication.instance().model.worker_thread
         for index, selection in enumerate(self.selections, start=1):
+            if worker_thread.isInterruptionRequested():
+                logger.warning("Requested worker thread interruption. Aborting writing selections to files.")
+                break
             self._write_selection_to_output_file(index, selection, progress_step_size)
 
     def _write_selection_to_output_file(self, index: int, selection: Rectangle, progress_step_size: float):
