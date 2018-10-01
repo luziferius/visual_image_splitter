@@ -14,6 +14,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import typing
+import enum
 
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsSceneMouseEvent, QGraphicsRectItem
 from PyQt5.QtWidgets import QWidget, QApplication
@@ -28,6 +29,11 @@ logger = get_logger("selection_editor")
 scene_logger = get_logger("selection_scene")
 
 
+class EditorMode(enum.Enum):
+    DRAW_MODE = enum.auto()
+    MOVE_MODE = enum.auto()
+
+
 class SelectionScene(QGraphicsScene):
 
     selection_drawing_finished = pyqtSignal(QRectF)
@@ -39,8 +45,15 @@ class SelectionScene(QGraphicsScene):
         self.default_fill_brush = QBrush(rectangle_color, Qt.BDiagPattern)
         self.new_selection_view: QGraphicsRectItem = None
         self.new_selection_origin: QPointF = None
+        self.mode = EditorMode.DRAW_MODE
 
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent):
+        if self.mode == EditorMode.DRAW_MODE:
+            self._handle_mouse_press_draw_mode(event)
+        elif self.mode == EditorMode.MOVE_MODE:
+            raise NotImplementedError("Move mode is not implemented!")
+
+    def _handle_mouse_press_draw_mode(self, event: QGraphicsSceneMouseEvent):
         if event.button() == Qt.LeftButton and self.new_selection_view is None:
             self.new_selection_origin = event.scenePos()
             self._restrict_to_scene_space(self.new_selection_origin)
@@ -57,6 +70,12 @@ class SelectionScene(QGraphicsScene):
             event.accept()
 
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent):
+        if self.mode == EditorMode.DRAW_MODE:
+            self._handle_mouse_move_draw_mode(event)
+        elif self.mode == EditorMode.MOVE_MODE:
+            raise NotImplementedError("Move mode is not implemented!")
+
+    def _handle_mouse_move_draw_mode(self, event: QGraphicsSceneMouseEvent):
         point2 = event.scenePos()
         self._restrict_to_scene_space(point2)
         if self.new_selection_origin is None:
@@ -72,6 +91,12 @@ class SelectionScene(QGraphicsScene):
         event.accept()
 
     def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent):
+        if self.mode == EditorMode.DRAW_MODE:
+            self._handle_mouse_release_draw_mode(event)
+        elif self.mode == EditorMode.MOVE_MODE:
+            raise NotImplementedError("Move mode is not implemented!")
+
+    def _handle_mouse_release_draw_mode(self, event: QGraphicsSceneMouseEvent):
         self.new_selection_view: QGraphicsRectItem
         if event.button() == Qt.LeftButton and self.new_selection_view is not None:
             absolute_rectangle = self.new_selection_view.mapRectFromScene(self.new_selection_view.rect())
@@ -94,6 +119,7 @@ class SelectionScene(QGraphicsScene):
             self._draw_rectangle(current, rectangle)
 
     def _restrict_to_scene_space(self, point: QPointF):
+        """Restrict rectangle drawing to the screen space. This prevents drawing out of the source image bounds."""
         point.setX(min(max(point.x(), 0), self.sceneRect().width()))
         point.setY(min(max(point.y(), 0), self.sceneRect().height()))
 
@@ -106,7 +132,7 @@ class SelectionScene(QGraphicsScene):
 
     def _to_local_coordinates(self, current: QModelIndex, rectangle: Selection) -> QRectF:
         """
-        Scales a model rectangle to local coordinates. Large images are scaled down, so the rectangles need to be
+        Scales a model Selection to local coordinates. Large images are scaled down, so the rectangles need to be
         scaled, too. This function performs the scaling and conversion to floating point based rectangles, as expected
         by QGraphicsView.
         """
@@ -184,7 +210,8 @@ class SelectionEditor(QGraphicsView):
         Scales a floating point rectangle from local coordinates to an integer based rectangle in the source image
         coordinates.
         """
-        image_width = image_index.sibling(image_index.row(), 0).data(Qt.UserRole).width
+        image = image_index.sibling(image_index.row(), 0).data(Qt.UserRole)
+        image_width: int = image.width
         scaling_factor = image_width / self.scene().width()
 
         return Selection(
