@@ -50,13 +50,13 @@ class OpenImagesDialog(QFileDialog):
         supported_formats = OpenImagesDialog._supported_file_formats()
         logger.debug(f"Readable and writable image formats: {supported_formats}")
         formats_wildcards = [f"*.{file_format}" for file_format in supported_formats]
-        all_images_filter = f"All supported image formats ({' '.join(formats_wildcards)})"
+        all_images_filter = f"All supported image formats({' '.join(formats_wildcards)})"
         specific_filters_list = [
-            f"{file_format.upper()}-File (*.{wildcard})"
+            f"{file_format.upper()}-File(*.{wildcard})"
             for file_format, wildcard
             in zip(supported_formats, formats_wildcards)
         ]
-        filters = f"{all_images_filter};;{';;'.join(specific_filters_list)};;All files (*)"
+        filters = f"{all_images_filter};;{';;'.join(specific_filters_list)};;All files(*)"
 
         return filters
 
