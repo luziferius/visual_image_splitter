@@ -18,7 +18,7 @@ from hamcrest import *
 
 from visual_image_splitter.model.point import Point
 from visual_image_splitter.model.rectangle import Rectangle
-from visual_image_splitter.model.model import Selection
+from visual_image_splitter.model.model import SelectionPreset
 
 
 def rectangle(x1: int, y1: int, x2: int, y2: int) -> Rectangle:
@@ -27,23 +27,23 @@ def rectangle(x1: int, y1: int, x2: int, y2: int) -> Rectangle:
 
 
 def generate_selection_to_rectangle_conversion_test_cases():
-    """Yields tuples containing a Selection, image_width, image_height, expected Rectangle """
+    """Yields tuples containing a SelectionPreset, image_width, image_height, expected Rectangle """
 
     # Positive absolute coordinates
-    yield Selection("100", "50", "300", "400"), 1000, 1000, rectangle(100, 50, 300, 400)
-    yield Selection("100", "50", "20%", "400"), 1000, 1000, rectangle(100, 50, 200, 400)
-    yield Selection("100%", "50%", "10%", "5%"), 1000, 1000, rectangle(100, 50, 1000, 500)
+    yield SelectionPreset("100", "50", "300", "400"), 1000, 1000, rectangle(100, 50, 300, 400)
+    yield SelectionPreset("100", "50", "20%", "400"), 1000, 1000, rectangle(100, 50, 200, 400)
+    yield SelectionPreset("100%", "50%", "10%", "5%"), 1000, 1000, rectangle(100, 50, 1000, 500)
 
     # Negative absolute coordinates
-    yield Selection("-100", "-50", "300", "400"), 1000, 1000, rectangle(300, 400, 900, 950)  # Both values negative
-    yield Selection("-100", "50", "300", "400"), 1000, 1000, rectangle(300, 50, 900, 400)  # One value negative
-    yield Selection("-10%", "-50%", "300", "0"), 1000, 1000, rectangle(300, 0, 900, 500)  # Both percentages negative
+    yield SelectionPreset("-100", "-50", "300", "400"), 1000, 1000, rectangle(300, 400, 900, 950)  # Both values negative
+    yield SelectionPreset("-100", "50", "300", "400"), 1000, 1000, rectangle(300, 50, 900, 400)  # One value negative
+    yield SelectionPreset("-10%", "-50%", "300", "0"), 1000, 1000, rectangle(300, 0, 900, 500)  # Both percentages negative
 
     # Relative mode
-    yield Selection("100", "50", "+300", "+100"), 1000, 1000, rectangle(100, 50, 400, 150)
-    yield Selection("500", "400", "-300", "+200"), 1000, 1000, rectangle(200, 400, 500, 600)
-    yield Selection("500", "350", "-10%", "+200"), 1000, 1000, rectangle(400, 350, 500, 550)
-    yield Selection("-60%", "-400", "-300", "+200"), 1000, 1000, rectangle(100, 600, 400, 800)
+    yield SelectionPreset("100", "50", "+300", "+100"), 1000, 1000, rectangle(100, 50, 400, 150)
+    yield SelectionPreset("500", "400", "-300", "+200"), 1000, 1000, rectangle(200, 400, 500, 600)
+    yield SelectionPreset("500", "350", "-10%", "+200"), 1000, 1000, rectangle(400, 350, 500, 550)
+    yield SelectionPreset("-60%", "-400", "-300", "+200"), 1000, 1000, rectangle(100, 600, 400, 800)
 
 
 @pytest.mark.parametrize("selection, image_width, image_height, expected_rectangle",

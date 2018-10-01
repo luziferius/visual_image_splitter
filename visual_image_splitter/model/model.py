@@ -27,31 +27,37 @@ from .async_io import ModelWorker
 logger = get_logger("model")
 
 
-class Selection(typing.NamedTuple):
+class SelectionPreset(typing.NamedTuple):
+    """
+    The SelectionPreset is a selection preset that causes a Selection to be added to each opened image.
+    The class supports absolute and relative selection specification, including negative coordinates and percentages,
+    which will be converted to actual widths and heights for each image it is applied to.
+
+    """
     x1: str
     y1: str
     x2: str
     y2: str
 
     def to_rectangle(self, image_width: int, image_height: int):
-        x1 = Selection._parse_first(self.x1, image_width)
-        y1 = Selection._parse_first(self.y1, image_height)
-        x2 = Selection._parse_second(self.x2, image_width, x1)
-        y2 = Selection._parse_second(self.y2, image_height, y1)
+        x1 = SelectionPreset._parse_first(self.x1, image_width)
+        y1 = SelectionPreset._parse_first(self.y1, image_height)
+        x2 = SelectionPreset._parse_second(self.x2, image_width, x1)
+        y2 = SelectionPreset._parse_second(self.y2, image_height, y1)
         result = Rectangle(Point(x1, y1), Point(x2, y2))
         logger.info(f"Converting {self} into {result}")
         return result
 
     @staticmethod
     def _parse_first(value: str, image_dimension: int) -> int:
-        result = Selection._parse_value(value, image_dimension)
+        result = SelectionPreset._parse_value(value, image_dimension)
         if result < 0:
             result = image_dimension + result  # Reminder: Because result is negative, this is the desired subtraction
         return result
 
     @staticmethod
     def _parse_second(value: str, image_dimension: int, relative_anchor: int) -> int:
-        result = Selection._parse_value(value, image_dimension)
+        result = SelectionPreset._parse_value(value, image_dimension)
         if result < 0 or value.startswith("+"):
             # Relative to the first anchor, positive or negative
             # Reminder: if result is negative, this is the intended subtraction.
@@ -94,7 +100,7 @@ class Model(QAbstractTableModel):
         # The predefined selections is a list of selections given on the command line. These selections are
         # automatically added to each Image file
         logger.info("Loading selections given on the command line")
-        self.predefined_selections: typing.List[Selection] = self._create_selections_from_command_line()
+        self.predefined_selections: typing.List[SelectionPreset] = self._create_selections_from_command_line()
         logger.debug(f"Loaded selections: {self.predefined_selections}")
         # Load all given images
         self.images: typing.List[Image] = []
@@ -122,7 +128,7 @@ class Model(QAbstractTableModel):
 
     def _create_selections_from_command_line(self):
         """Read all selection presets given on the command line."""
-        return [Selection(*selection) for selection in self.args.selections]
+        return [SelectionPreset(*selection) for selection in self.args.selections]
 
     def _open_command_line_given_images(self):
         """
