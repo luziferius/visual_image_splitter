@@ -59,7 +59,7 @@ class Selection:
     @staticmethod
     def row_count() -> int:
         """Qt Model function."""
-        return 1
+        return 0
 
     def row(self) -> int:
         """Qt Model function."""
@@ -95,7 +95,6 @@ class Selection:
             # Invalid column
             return QVariant()
 
-
     def _get_user_data_for_row(self, column: int):
         if column == 0:
             return QVariant(self.top_left)
@@ -104,6 +103,8 @@ class Selection:
         else:
             return QVariant()
 
+    def child(self, row: int):
+        return None
 
     def parent(self):
         return self._parent
