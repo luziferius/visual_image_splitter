@@ -71,5 +71,11 @@ class OpenImagesDialog(QFileDialog):
         return supported_formats
 
     def selected_paths(self) -> typing.List[Path]:
-        file_path_string_list = self.selectedFiles()
-        return [Path(file_path_string) for file_path_string in file_path_string_list]
+        """Returns a list with all selected files."""
+        supported_formats = set(self._supported_file_formats())
+        result = [Path(file_path_string) for file_path_string in self.selectedFiles()]
+        for path in result:
+            if not path.suffix or path.suffix.lower()[1:] not in supported_formats:
+                logger.warning(f"Selected a file with an unknown file ending. Opening it will be tried, "
+                               f"but will fail if it does not contain a known image format. File: {path}")
+        return result
