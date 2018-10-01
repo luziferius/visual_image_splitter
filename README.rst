@@ -37,11 +37,16 @@ Command line arguments
 
 Visual Image splitter accepts some command line switches:
 
-- s, --selection: Adds a pre-defined selection to all image files loaded. This argument can be specified more than once to add multiple selections.
-    - It takes four arguments (optional parts in square brackets): [-]x1[%] [-]y1[%] [+-]x2[%] [+-]y2[%]
-    - If any value is specified with a percent sign, it is treated as a decimal percentage of the actual image size it will be applied to.
-    - The first two values, x1 and y1, build the first anchor point. Values are relative to the top and left image border. If a value is negative, it is treated as relative to the right and bottom image border.
-    - The second two values, x2 and y2 form the second anchor point. If a sign is given (either positive or negative), the value is treated as relative to the `first anchor point`.
+- `-s`, `--selection`: Adds a selection preset to all image files loaded. This argument can be specified more than once to add multiple selections.
+    - This switch takes exactly four numerical arguments (optional parts in square brackets): [-]x1[%] [-]y1[%] [+-]x2[%] [+-]y2[%]
+    - The given presets will be added as selections to each opened file, both to image specified on the command line *and* any image opened later.
+    - If any argument value is specified with a percent sign, it is treated as a decimal percentage of the actual image size it will be applied to.
+    - The first value pair, x1 and y1, build the first anchor point. Values are relative to the top and left image border. If a value is negative, it is treated as relative to the right and bottom image border.
+    - The second value pair, x2 and y2 form the second anchor point. If a sign is given (either positive or negative), the value is treated as relative to the `first anchor point`.
+- `-h`, `--help`: Print the help text on the standard output
+- `-v`, `--version`: Print the application version on the standard output
+- `-V`, `--verbose`: Increase log output verbosity on the standard output
+- `--cutelog-integration`: Enable logging to a network socket for external log viewing. See https://github.com/busimus/cutelog
 - List of image files
     - visual_image_splitter accepts a list of image files as positional arguments. These image files will be loaded on program start.
 
