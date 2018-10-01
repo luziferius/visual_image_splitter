@@ -20,11 +20,15 @@ from PyQt5.QtCore import QRect, QPoint, QSize, QRectF
 
 from .point import Point
 
+if typing.TYPE_CHECKING:
+    from .image import Image
+
 
 class Selection:
 
-    def __init__(self, point1: Point, point2: Point):
+    def __init__(self, point1: Point, point2: Point, parent_image=None):
         self.top_left, self.bottom_right = Selection._normalize(point1, point2)
+        self.parent: Image = parent_image
 
     @staticmethod
     def _normalize(point1: Point, point2: Point) -> typing.Tuple[Point, Point]:

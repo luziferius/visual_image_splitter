@@ -220,5 +220,6 @@ class SelectionEditor(QGraphicsView):
                 round(rectangle.top()*scaling_factor)),
             Point(
                 round(rectangle.right()*scaling_factor),
-                round(rectangle.bottom()*scaling_factor))
+                round(rectangle.bottom()*scaling_factor)),
+            image
         )

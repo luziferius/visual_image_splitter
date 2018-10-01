@@ -39,12 +39,12 @@ class SelectionPreset(typing.NamedTuple):
     x2: str
     y2: str
 
-    def to_rectangle(self, image_width: int, image_height: int):
-        x1 = SelectionPreset._parse_first(self.x1, image_width)
-        y1 = SelectionPreset._parse_first(self.y1, image_height)
-        x2 = SelectionPreset._parse_second(self.x2, image_width, x1)
-        y2 = SelectionPreset._parse_second(self.y2, image_height, y1)
-        result = Selection(Point(x1, y1), Point(x2, y2))
+    def to_rectangle(self, image: Image):
+        x1 = SelectionPreset._parse_first(self.x1, image.width)
+        y1 = SelectionPreset._parse_first(self.y1, image.height)
+        x2 = SelectionPreset._parse_second(self.x2, image.width, x1)
+        y2 = SelectionPreset._parse_second(self.y2, image.height, y1)
+        result = Selection(Point(x1, y1), Point(x2, y2), image)
         logger.info(f"Converting {self} into {result}")
         return result
 
@@ -175,7 +175,7 @@ class Model(QAbstractTableModel):
         logger.debug(f"Image instance created. Adding predefined selections as given on the command line: "
                      f"{self.predefined_selections}")
         for selection in self.predefined_selections:
-            image.add_selection(selection.to_rectangle(image.width, image.height))
+            image.add_selection(selection.to_rectangle(image))
         self.images.append(image)
         image.clear_image_data()
         # Image currently belongs to the self.worker_thread that created it.

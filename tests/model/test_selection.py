@@ -28,14 +28,17 @@ class RectangleData(typing.NamedTuple):
 
 
 def generate_normalisation_test_cases():
-    """Yields test cases for rectangle normalisation as tuples.
-    First element is the input data, second element is the expected, normalized result."""
+    """
+    Yields test cases for rectangle normalisation as tuples.
+    First element is the input data, second element is the expected, normalized result.
+    """
 
     # Regular rectangles
     yield RectangleData(Point(5, 10), Point(20, 40)), RectangleData(Point(5, 10), Point(20, 40))
     yield RectangleData(Point(20, 40), Point(5, 10)), RectangleData(Point(5, 10), Point(20, 40))
     yield RectangleData(Point(0, 50), Point(30, 10)), RectangleData(Point(0, 10), Point(30, 50))
     yield RectangleData(Point(30, 10), Point(0, 50)), RectangleData(Point(0, 10), Point(30, 50))
+
     # Both points on a line
     yield RectangleData(Point(0, 20), Point(0, 10)), RectangleData(Point(0, 10), Point(0, 20))
     yield RectangleData(Point(0, 10), Point(0, 10)), RectangleData(Point(0, 10), Point(0, 10))
