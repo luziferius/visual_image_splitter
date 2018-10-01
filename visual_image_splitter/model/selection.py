@@ -37,7 +37,7 @@ class Selection:
         return top_left, bottom_right
 
     @property
-    def as_qrect(self):
+    def as_qrect(self) -> QRect:
         # Not using QRect(QPoint, QPoint), constructor, because: "There is a third constructor that creates a QRect
         # using the top-left and bottom-right coordinates, but we recommend that you avoid using it. The rationale is
         # that for historical reasons the values returned by the bottom() and right() functions deviate from the true
@@ -48,19 +48,19 @@ class Selection:
         )
 
     @property
-    def as_qrectf(self):
+    def as_qrectf(self) -> QRectF:
         return QRectF(QPoint(*self.top_left), QPoint(*self.bottom_right))
 
     @property
-    def width(self):
+    def width(self) -> int:
         return self.bottom_right.x - self.top_left.x
 
     @property
-    def height(self):
+    def height(self) -> int:
         return self.bottom_right.y - self.top_left.y
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Selection({self.top_left}, {self.bottom_right})"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return repr(self)
