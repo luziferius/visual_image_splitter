@@ -64,3 +64,14 @@ def test_q_rect_conversion(input_points: RectangleData, expected: RectangleData)
     assert_that(q_rectangle.topLeft().y(), is_(equal_to(expected.point1.y)))
     assert_that(q_rectangle.bottomRight().x(), is_(equal_to(expected.point2.x-1)))  # QRect is always one off
     assert_that(q_rectangle.bottomRight().y(), is_(equal_to(expected.point2.y-1)))  # QRect is always one off
+
+
+@pytest.mark.parametrize("input_points, expected", generate_normalisation_test_cases())
+def test_q_rectf_conversion(input_points: RectangleData, expected: RectangleData):
+    """Test conversion into QRectF rectangles used for Qt5 interoperation."""
+    q_rectangle = Rectangle(*input_points).as_qrectf
+
+    assert_that(q_rectangle.topLeft().x(), is_(equal_to(expected.point1.x)))
+    assert_that(q_rectangle.topLeft().y(), is_(equal_to(expected.point1.y)))
+    assert_that(q_rectangle.bottomRight().x(), is_(equal_to(expected.point2.x)))
+    assert_that(q_rectangle.bottomRight().y(), is_(equal_to(expected.point2.y)))

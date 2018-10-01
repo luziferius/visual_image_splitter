@@ -27,7 +27,7 @@ logger = get_logger("Image")
 
 
 class Image(QObject):
-    """"""
+    """This class models an opened image file."""
     write_output_progress = pyqtSignal(int)
 
     def __init__(self, source_file: Path, parent: QObject=None):
