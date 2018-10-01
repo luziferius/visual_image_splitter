@@ -16,7 +16,7 @@
 
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QModelIndex
 from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtWidgets import QWidget, QApplication, QTableView
+from PyQt5.QtWidgets import QWidget, QApplication, QTreeView
 
 from visual_image_splitter.ui.common import inherits_from_ui_file_with_name
 from visual_image_splitter.ui.selection_editor import SelectionEditor
@@ -37,8 +37,7 @@ class MainWindow(*inherits_from_ui_file_with_name("main_window")):
         self.setupUi(self)
         self.dirty: bool = False
         self.image_view: SelectionEditor
-        self.opened_images_list_view: QTableView
-        self.opened_images_list_view.verticalHeader().hide()
+        self.opened_images_list_view: QTreeView
         self.opened_images_list_view.setModel(model)
         self.opened_images_list_view.selectionModel().currentChanged.connect(self.image_view.on_image_selection_changed)
         logger.info("Created main window instance")

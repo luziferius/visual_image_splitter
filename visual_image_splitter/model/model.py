@@ -16,7 +16,7 @@
 import typing
 import pathlib
 
-from PyQt5.QtCore import QObject, QAbstractTableModel, QModelIndex, QVariant, Qt, QThread, pyqtSignal, QTimer
+from PyQt5.QtCore import QObject, QAbstractItemModel, QModelIndex, QVariant, Qt, QThread, pyqtSignal, QTimer
 
 from visual_image_splitter.model.selection_preset import SelectionPreset
 from .selection import Selection
@@ -27,14 +27,17 @@ from .async_io import ModelWorker
 logger = get_logger("model")
 
 
-class Model(QAbstractTableModel):
+class Model(QAbstractItemModel):
     """
     Holds the Image data. This implements a Qt Model class.
     Column definitions:
      - 0: Image data
-     - 1: Selection rectangles
+     - 1: image file path
      - 3: Output path
     """
+
+    # These signals are used start long running operations in the background. They are connected to slots in the
+    # ModelWorker class, which lives inside another QThread.
     open_command_line_given_images = pyqtSignal()
     open_images = pyqtSignal(list)
     save_and_close_all_images = pyqtSignal()
@@ -112,8 +115,6 @@ class Model(QAbstractTableModel):
         """
         image = self.images[index.row()]
         self.beginInsertRows(index, len(image.selections), len(image.selections))
-        self.dataChanged.emit(self.index(index.row(), 1), self.index(index.row(), 1))  # TODO: Temporary.
-        # TODO: remove emitting dataChanged when the model is a proper tree and the view properly renders it.
         image.selections.append(selection)
         self.endInsertRows()
 
@@ -164,86 +165,62 @@ class Model(QAbstractTableModel):
 
     def index(self, row: int, column: int, parent: QModelIndex = QModelIndex()) -> QModelIndex:
         if not self.hasIndex(row, column, parent):
+            logger.debug("No index. Returning invalid QModelIndex()")
             return QModelIndex()
 
-        if not parent.isValid() or (parent.isValid() and 1 == parent.column()):
-            return super(Model, self).index(row, column, parent)
-
-        if parent.row() > len(self.images):
-            return QModelIndex()
-
-        child_item = self.images[parent.row()]
-        if len(child_item.selections) > row >= 0 == column:
-            return self.createIndex(row, column, child_item)
+        if parent.isValid():
+            parent_item = parent.internalPointer().child(row)
+        else:
+            # Invalid parent means top level access. Look up the Image in the images list.
+            parent_item = self.images[row] if 0 <= row < len(self.images) else None  # Sanity check the row value
+        if parent_item is not None:
+            return self.createIndex(row, column, parent_item)
         else:
             return QModelIndex()
 
     def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
-        if parent.isValid() and not parent.parent().isValid():
-            if parent.column() == 1:
-                try:
-                    return len(self.images[parent.row()].selections)
-                except IndexError:
-                    return 0
-        return len(self.images)
+        """Qt Model API function. Returns the number of rows/children for the given parent."""
+        if parent.column() > 0:
+            return 0
+        if not parent.isValid():
+            return len(self.images)
+        else:
+            return parent.internalPointer().row_count()
 
     def columnCount(self, parent: QModelIndex = QModelIndex()) -> int:
-        if parent.isValid() and parent.column() == 1:
-            return 1
+        """Qt Model API function. Returns the number of colums/data items for the given parent."""
+        if parent.isValid():
+            return parent.internalPointer().column_count()
         else:
-            return 3
+            # Invalid indices should return the column count of the root item, which is set to be the Image class
+            # column count.
+            return Image.column_count()
+
+    def parent(self, child: QModelIndex) -> QModelIndex:
+        """Qt Model API function."""
+        if not child.isValid():
+            return QModelIndex()
+        child_item = child.internalPointer()
+        parent = child_item.parent()
+
+        if parent is self:
+            # Image instances have this as a parent, thus it is a top level access. Thus, there is no parent
+            return QModelIndex()
+        else:
+            return self.createIndex(parent.row(), 0, parent)
 
     def data(self, index: QModelIndex, role: int = Qt.DisplayRole) -> QVariant:
         if not index.isValid():
             return QVariant()
-        try:
-            image = self.images[index.row()]
-        except IndexError:
-            return QVariant()
-        else:
-            if role == Qt.DisplayRole:
-                return self._get_column_display_data_for_row(index.column(), image)
-            elif role == Qt.BackgroundRole:
-                return self._get_background_data_for_row(index.column(), image)
-            elif role == Qt.UserRole:
-                return self._get_user_data_for_row(index.column(), image)
-            else:
-                return QVariant()
-
-    @staticmethod
-    def _get_column_display_data_for_row(column: int, image: Image) -> QVariant:
-        if column == 0:
-            return QVariant(str(image.image_path))
-        elif column == 1:
-            return QVariant(str(image.selections))
-        elif column == 2:
-            return QVariant(str(image.output_path))
-        else:
-            # Invalid column
-            return QVariant()
-
-    @staticmethod
-    def _get_background_data_for_row(column: int, image: Image) -> QVariant:
-        if column == 0:
-            return QVariant(image.low_resolution_image)
-        else:
-            return QVariant()
-
-    @staticmethod
-    def _get_user_data_for_row(column: int, image: Image):
-        if column == 0:
-            return QVariant(image)
-        elif column == 1:
-            return QVariant(image.selections)
-        elif column == 2:
-            return QVariant(image.output_path)
+        item = index.internalPointer()
+        return item.data(index.column(), role)
 
     def headerData(self, section: int, orientation: Qt.Orientation, role: int = Qt.DisplayRole):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
             if section == 0:
-                return QVariant("Image")
+                return "Image"
             elif section == 1:
-                return QVariant("Selections")
+                return "Image path"
             elif section == 2:
-                return QVariant("Output path")
+                return "Output path"
         return QVariant()

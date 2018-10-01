@@ -16,7 +16,7 @@
 
 import typing
 
-from PyQt5.QtCore import QRect, QPoint, QSize, QRectF, QVariant
+from PyQt5.QtCore import QRect, QPoint, QSize, QRectF, QVariant, Qt
 
 from .point import Point
 
@@ -28,7 +28,7 @@ class Selection:
 
     def __init__(self, point1: Point, point2: Point, parent_image=None):
         self.top_left, self.bottom_right = Selection._normalize(point1, point2)
-        self.parent: Image = parent_image
+        self._parent: Image = parent_image
 
     @staticmethod
     def _normalize(point1: Point, point2: Point) -> typing.Tuple[Point, Point]:
@@ -59,16 +59,16 @@ class Selection:
     @staticmethod
     def row_count() -> int:
         """Qt Model function."""
-        return 0
+        return 1
 
     def row(self) -> int:
         """Qt Model function."""
         if self.parent is None:
             return 0
         else:
-            return self.parent.selections.index(self)
+            return self.parent().selections.index(self)
 
-    def data(self, column: int) -> QVariant:
+    def data(self, column: int, role) -> QVariant:
         """Qt Model function."""
         if column == 0:
             return QVariant(self.top_left)
@@ -76,6 +76,37 @@ class Selection:
             return QVariant(self.bottom_right)
         else:
             return QVariant()
+
+    def data(self, column: int, role: int=Qt.DisplayRole) -> QVariant:
+        """Qt Model function. Returns the own data using the Qt model API"""
+        if role == Qt.DisplayRole:
+            return self._get_column_display_data_for_row(column)
+        elif role == Qt.UserRole:
+            return self._get_user_data_for_row(column)
+        else:
+            return QVariant()
+
+    def _get_column_display_data_for_row(self, column: int) -> QVariant:
+        if column == 0:
+            return QVariant(str(self.top_left))
+        elif column == 1:
+            return QVariant(str(self.bottom_right))
+        else:
+            # Invalid column
+            return QVariant()
+
+
+    def _get_user_data_for_row(self, column: int):
+        if column == 0:
+            return QVariant(self.top_left)
+        elif column == 1:
+            return QVariant(self.bottom_right)
+        else:
+            return QVariant()
+
+
+    def parent(self):
+        return self._parent
 
     @property
     def as_qrectf(self) -> QRectF:

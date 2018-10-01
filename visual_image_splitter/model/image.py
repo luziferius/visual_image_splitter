@@ -16,7 +16,7 @@
 from pathlib import Path
 import typing
 
-from PyQt5.QtCore import pyqtSignal, QObject, QThread, QVariant
+from PyQt5.QtCore import pyqtSignal, QObject, QThread, QVariant, Qt
 from PyQt5.QtGui import QImage, QImageReader, QImageWriter, QPixmap
 from PyQt5.QtWidgets import QApplication
 
@@ -64,7 +64,7 @@ class Image(QObject):
         self.selections.append(selection)
         self.thumbnails[selection] = self.low_resolution_image.copy(selection.as_qrect)
 
-    def selection_count(self) -> int:
+    def row_count(self) -> int:
         """Returns the number of selections. This is the number of child rows in the Qt TreeModel."""
         return len(self.selections)
 
@@ -73,12 +73,39 @@ class Image(QObject):
         """Number of Qt TreeModel columns. This contains the image data, image path and the output path."""
         return 3
 
-    def data(self, column: int) -> QVariant:
+    def data(self, column: int, role: int=Qt.DisplayRole) -> QVariant:
         """Qt Model function. Returns the own data using the Qt model API"""
+        if role == Qt.DisplayRole:
+            return self._get_column_display_data_for_row(column)
+        elif role == Qt.BackgroundRole:
+            return self._get_background_data_for_row(column)
+        elif role == Qt.UserRole:
+            return self._get_user_data_for_row(column)
+        else:
+            return QVariant()
+
+    def _get_column_display_data_for_row(self, column: int) -> QVariant:
+        if column == 0:
+            return QVariant(str(self.low_resolution_image))
+        elif column == 1:
+            return QVariant(str(self.image_path))
+        elif column == 2:
+            return QVariant(str(self.output_path))
+        else:
+            # Invalid column
+            return QVariant()
+
+    def _get_background_data_for_row(self, column: int) -> QVariant:
         if column == 0:
             return QVariant(self.low_resolution_image)
+        else:
+            return QVariant()
+
+    def _get_user_data_for_row(self, column: int):
+        if column == 0:
+            return QVariant(self)
         elif column == 1:
-            return QVariant(self.image_path)
+            return QVariant(self.selections)
         elif column == 2:
             return QVariant(self.output_path)
         else:
@@ -94,7 +121,7 @@ class Image(QObject):
             row = model.images.index(self)
         return row
 
-    def selection(self, row: int) -> Selection:
+    def child(self, row: int) -> Selection:
         """Qt Model function. Returns the Selection at the given child row. or None, if it does not exist."""
         return self.selections[row] if 0 <= row < len(self.selections) else None
 

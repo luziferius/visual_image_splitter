@@ -172,11 +172,12 @@ class SelectionEditor(QGraphicsView):
         """
         del previous  # Currently not used signal parameter.
         if current.isValid():
-            logger.debug(f"Selected: {current}, column={current.column()}, row={current.row()}")
             data = current.data(Qt.BackgroundRole)
             if data is not None:
                 self.load_image(data)
-            self.load_selections(current)
+                self.load_selections(current)
+            else:
+                logger.info(f"Invalid index {current}. row={current.row()}, column={current.column()}")
         else:
             logger.debug("Selection changed to an invalid index. Clearing scene.")
             self.clear()
