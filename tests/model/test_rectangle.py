@@ -19,7 +19,7 @@ import pytest
 from hamcrest import *
 
 from visual_image_splitter.model.point import Point
-from visual_image_splitter.model.rectangle import Rectangle
+from visual_image_splitter.model.selection import Selection
 
 
 class RectangleData(typing.NamedTuple):
@@ -50,7 +50,7 @@ def generate_normalisation_test_cases():
 @pytest.mark.parametrize("input_points, expected", generate_normalisation_test_cases())
 def test__normalize(input_points: RectangleData, expected: RectangleData):
     """Test rectangle normalisation."""
-    rectangle = Rectangle(*input_points)
+    rectangle = Selection(*input_points)
     assert_that(rectangle.top_left, is_(equal_to(expected.point1)))
     assert_that(rectangle.bottom_right, is_(equal_to(expected.point2)))
 
@@ -58,7 +58,7 @@ def test__normalize(input_points: RectangleData, expected: RectangleData):
 @pytest.mark.parametrize("input_points, expected", generate_normalisation_test_cases())
 def test_q_rect_conversion(input_points: RectangleData, expected: RectangleData):
     """Test conversion into QRect rectangles used for Qt5 interoperation."""
-    q_rectangle = Rectangle(*input_points).as_qrect
+    q_rectangle = Selection(*input_points).as_qrect
 
     assert_that(q_rectangle.topLeft().x(), is_(equal_to(expected.point1.x)))
     assert_that(q_rectangle.topLeft().y(), is_(equal_to(expected.point1.y)))
@@ -69,7 +69,7 @@ def test_q_rect_conversion(input_points: RectangleData, expected: RectangleData)
 @pytest.mark.parametrize("input_points, expected", generate_normalisation_test_cases())
 def test_q_rectf_conversion(input_points: RectangleData, expected: RectangleData):
     """Test conversion into QRectF rectangles used for Qt5 interoperation."""
-    q_rectangle = Rectangle(*input_points).as_qrectf
+    q_rectangle = Selection(*input_points).as_qrectf
 
     assert_that(q_rectangle.topLeft().x(), is_(equal_to(expected.point1.x)))
     assert_that(q_rectangle.topLeft().y(), is_(equal_to(expected.point1.y)))

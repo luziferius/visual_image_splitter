@@ -21,11 +21,10 @@ from PyQt5.QtCore import QRect, QPoint, QSize, QRectF
 from .point import Point
 
 
-class Rectangle:
+class Selection:
 
     def __init__(self, point1: Point, point2: Point):
-        self.top_left, self.bottom_right = Rectangle._normalize(point1, point2)
-        # Not using QRect(QPoint, QPoint), constructor, because:
+        self.top_left, self.bottom_right = Selection._normalize(point1, point2)
 
     @staticmethod
     def _normalize(point1: Point, point2: Point) -> typing.Tuple[Point, Point]:
@@ -61,7 +60,7 @@ class Rectangle:
         return self.bottom_right.y - self.top_left.y
 
     def __repr__(self):
-        return f"Rectangle({self.top_left}, {self.bottom_right})"
+        return f"Selection({self.top_left}, {self.bottom_right})"
 
     def __str__(self):
         return repr(self)

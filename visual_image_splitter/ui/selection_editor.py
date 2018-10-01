@@ -20,7 +20,7 @@ from PyQt5.QtWidgets import QWidget, QApplication
 from PyQt5.QtCore import QRectF, QModelIndex, Qt, QObject, QPointF, pyqtSignal
 from PyQt5.QtGui import QPixmap, QPen, QColor, QBrush
 
-from visual_image_splitter.model.rectangle import Rectangle
+from visual_image_splitter.model.selection import Selection
 from visual_image_splitter.model.point import Point
 
 from ._logger import get_logger
@@ -89,7 +89,7 @@ class SelectionScene(QGraphicsScene):
             event.accept()
 
     def load_selections(self, current: QModelIndex):
-        selections: typing.List[Rectangle] = current.sibling(current.row(), 1).data(Qt.UserRole)
+        selections: typing.List[Selection] = current.sibling(current.row(), 1).data(Qt.UserRole)
         for rectangle in selections:
             self._draw_rectangle(current, rectangle)
 
@@ -97,14 +97,14 @@ class SelectionScene(QGraphicsScene):
         point.setX(min(max(point.x(), 0), self.sceneRect().width()))
         point.setY(min(max(point.y(), 0), self.sceneRect().height()))
 
-    def _draw_rectangle(self, current: QModelIndex, rectangle: Rectangle):
+    def _draw_rectangle(self, current: QModelIndex, rectangle: Selection):
         self.addRect(
             self._to_local_coordinates(current, rectangle),
             self.default_border_pen,
             self.default_fill_brush
         )
 
-    def _to_local_coordinates(self, current: QModelIndex, rectangle: Rectangle) -> QRectF:
+    def _to_local_coordinates(self, current: QModelIndex, rectangle: Selection) -> QRectF:
         """
         Scales a model rectangle to local coordinates. Large images are scaled down, so the rectangles need to be
         scaled, too. This function performs the scaling and conversion to floating point based rectangles, as expected
@@ -179,7 +179,7 @@ class SelectionEditor(QGraphicsView):
     def load_selections(self, current: QModelIndex):
         self.scene().load_selections(current)
 
-    def _from_local_coordinates(self, image_index: QModelIndex, rectangle: QRectF) -> Rectangle:
+    def _from_local_coordinates(self, image_index: QModelIndex, rectangle: QRectF) -> Selection:
         """
         Scales a floating point rectangle from local coordinates to an integer based rectangle in the source image
         coordinates.
@@ -187,7 +187,7 @@ class SelectionEditor(QGraphicsView):
         image_width = image_index.sibling(image_index.row(), 0).data(Qt.UserRole).width
         scaling_factor = image_width / self.scene().width()
 
-        return Rectangle(
+        return Selection(
             Point(
                 round(rectangle.left()*scaling_factor),
                 round(rectangle.top()*scaling_factor)),

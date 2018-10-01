@@ -17,17 +17,17 @@ import pytest
 from hamcrest import *
 
 from visual_image_splitter.model.point import Point
-from visual_image_splitter.model.rectangle import Rectangle
+from visual_image_splitter.model.selection import Selection
 from visual_image_splitter.model.model import SelectionPreset
 
 
-def rectangle(x1: int, y1: int, x2: int, y2: int) -> Rectangle:
+def rectangle(x1: int, y1: int, x2: int, y2: int) -> Selection:
     """Save some typing."""
-    return Rectangle(Point(x1, y1), Point(x2, y2))
+    return Selection(Point(x1, y1), Point(x2, y2))
 
 
 def generate_selection_preset_to_rectangle_conversion_test_cases():
-    """Yields tuples containing a SelectionPreset, image_width, image_height, expected Rectangle """
+    """Yields tuples containing a SelectionPreset, image_width, image_height, expected Selection """
 
     # Positive absolute coordinates
     yield SelectionPreset("100", "50", "300", "400"), 1000, 1000, rectangle(100, 50, 300, 400)

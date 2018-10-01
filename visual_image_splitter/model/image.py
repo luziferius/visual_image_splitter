@@ -20,7 +20,7 @@ from PyQt5.QtCore import pyqtSignal, QObject, QThread
 from PyQt5.QtGui import QImage, QImageReader, QImageWriter, QPixmap
 from PyQt5.QtWidgets import QApplication
 
-from .rectangle import Rectangle
+from .selection import Selection
 from ._logger import get_logger
 
 logger = get_logger("Image")
@@ -33,8 +33,8 @@ class Image(QObject):
     def __init__(self, source_file: Path, parent: QObject=None):
         super(Image, self).__init__(parent)
         self.image_path: Path = source_file.expanduser()
-        self.selections: typing.List[Rectangle] = []
-        self.thumbnails: typing.Dict[Rectangle, QPixmap] = {}
+        self.selections: typing.List[Selection] = []
+        self.thumbnails: typing.Dict[Selection, QPixmap] = {}
         self.low_resolution_image: QPixmap = None
         self.output_path: Path = source_file.parent
         self.image_data: QImage = None
@@ -51,11 +51,11 @@ class Image(QObject):
         logger.debug(f"Scaling low resolution image to resolution: {self._scaled_to_resolution(800)}")
         self.low_resolution_image = QPixmap.fromImage(self.image_data.scaled(*self._scaled_to_resolution(800)))
 
-    def add_selection(self, selection: Rectangle):
+    def add_selection(self, selection: Selection):
         """
         Add a selection for this Image.
         When saving, this selection will be extracted and saved as an image file to disk.
-        :param selection: A Rectangle defining the selection
+        :param selection: the to be added Selection
         """
         logger.info(f"Adding a new selection: {selection}")
         self.selections.append(selection)
@@ -90,8 +90,8 @@ class Image(QObject):
             logger.debug(f"Deleting loaded image file data for Image {self.image_path}.")
             self.image_data = None
 
-    def remove_selection(self, selection: typing.Union[int, Rectangle]):
-        if isinstance(selection, Rectangle):
+    def remove_selection(self, selection: typing.Union[int, Selection]):
+        if isinstance(selection, Selection):
             try:
                 self.selections.remove(selection)
             except ValueError:
@@ -130,11 +130,11 @@ class Image(QObject):
                 break
             self._write_selection_to_output_file(index, selection, progress_step_size)
 
-    def _write_selection_to_output_file(self, index: int, selection: Rectangle, progress_step_size: float):
+    def _write_selection_to_output_file(self, index: int, selection: Selection, progress_step_size: float):
         """
         Creates a new image file and writes the content of the given selection to disk.
         :param index: The index of this selection. This is used to build increasing file numbers for the output file.
-        :param selection: The selection Rectangle in progress
+        :param selection: The Selection in progress
         :param progress_step_size: Float giving the current progress step size per file in percent. Used for progress
         notifications and logging purposes.
         :return:

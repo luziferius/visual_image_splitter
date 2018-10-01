@@ -19,7 +19,7 @@ import pathlib
 from PyQt5.QtCore import QObject, QAbstractTableModel, QModelIndex, QVariant, Qt, QThread, pyqtSignal, QTimer
 
 from .point import Point
-from .rectangle import Rectangle
+from .selection import Selection
 from .image import Image
 from ._logger import get_logger
 from .async_io import ModelWorker
@@ -44,7 +44,7 @@ class SelectionPreset(typing.NamedTuple):
         y1 = SelectionPreset._parse_first(self.y1, image_height)
         x2 = SelectionPreset._parse_second(self.x2, image_width, x1)
         y2 = SelectionPreset._parse_second(self.y2, image_height, y1)
-        result = Rectangle(Point(x1, y1), Point(x2, y2))
+        result = Selection(Point(x1, y1), Point(x2, y2))
         logger.info(f"Converting {self} into {result}")
         return result
 
@@ -154,7 +154,7 @@ class Model(QAbstractTableModel):
         for image_path in path_list:
             self._open_image(image_path)
 
-    def add_selection(self, index: QModelIndex, selection: Rectangle):
+    def add_selection(self, index: QModelIndex, selection: Selection):
         """
         Add a selection to the referenced image.
         """
