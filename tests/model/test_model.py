@@ -18,7 +18,7 @@ from hamcrest import *
 
 from visual_image_splitter.model.point import Point
 from visual_image_splitter.model.selection import Selection
-from visual_image_splitter.model.model import SelectionPreset
+from visual_image_splitter.model.selection_preset import SelectionPreset
 
 
 class MockImage:
