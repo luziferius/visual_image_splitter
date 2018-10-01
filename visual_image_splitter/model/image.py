@@ -16,12 +16,15 @@
 from pathlib import Path
 import typing
 
-from PyQt5.QtCore import pyqtSignal, QObject, QThread
+from PyQt5.QtCore import pyqtSignal, QObject, QThread, QVariant
 from PyQt5.QtGui import QImage, QImageReader, QImageWriter, QPixmap
 from PyQt5.QtWidgets import QApplication
 
 from .selection import Selection
 from ._logger import get_logger
+
+if typing.TYPE_CHECKING:
+    from .model import Model
 
 logger = get_logger("Image")
 
@@ -60,6 +63,40 @@ class Image(QObject):
         logger.info(f"Adding a new selection: {selection}")
         self.selections.append(selection)
         self.thumbnails[selection] = self.low_resolution_image.copy(selection.as_qrect)
+
+    def selection_count(self) -> int:
+        """Returns the number of selections. This is the number of child rows in the Qt TreeModel."""
+        return len(self.selections)
+
+    @staticmethod
+    def column_count() -> int:
+        """Number of Qt TreeModel columns. This contains the image data, image path and the output path."""
+        return 3
+
+    def data(self, column: int) -> QVariant:
+        """Qt Model function. Returns the own data using the Qt model API"""
+        if column == 0:
+            return QVariant(self.low_resolution_image)
+        elif column == 1:
+            return QVariant(self.image_path)
+        elif column == 2:
+            return QVariant(self.output_path)
+        else:
+            return QVariant()
+
+    def row(self) -> int:
+        """Qt Model function. Returns the own row, that is the own position inside the parent image list."""
+        if self.parent() is None:
+            row = 0
+        else:
+            # Look up the own position (row) in the parent model class.
+            model: Model = self.parent()
+            row = model.images.index(self)
+        return row
+
+    def selection(self, row: int) -> Selection:
+        """Qt Model function. Returns the Selection at the given child row. or None, if it does not exist."""
+        return self.selections[row] if 0 <= row < len(self.selections) else None
 
     @property
     def has_image_data(self) -> bool:

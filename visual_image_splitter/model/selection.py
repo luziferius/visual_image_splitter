@@ -16,7 +16,7 @@
 
 import typing
 
-from PyQt5.QtCore import QRect, QPoint, QSize, QRectF
+from PyQt5.QtCore import QRect, QPoint, QSize, QRectF, QVariant
 
 from .point import Point
 
@@ -50,6 +50,32 @@ class Selection:
             QPoint(*self.top_left),
             QSize(self.bottom_right.x-self.top_left.x, self.bottom_right.y-self.top_left.y)
         )
+
+    @staticmethod
+    def column_count() -> int:
+        """Qt Model function."""
+        return 2
+
+    @staticmethod
+    def row_count() -> int:
+        """Qt Model function."""
+        return 0
+
+    def row(self) -> int:
+        """Qt Model function."""
+        if self.parent is None:
+            return 0
+        else:
+            return self.parent.selections.index(self)
+
+    def data(self, column: int) -> QVariant:
+        """Qt Model function."""
+        if column == 0:
+            return QVariant(self.top_left)
+        elif column == 1:
+            return QVariant(self.bottom_right)
+        else:
+            return QVariant()
 
     @property
     def as_qrectf(self) -> QRectF:
