@@ -23,9 +23,12 @@ PROGRAMNAME = "visual_image_splitter"
 VERSION = __version__
 COPYRIGHT = "(C) 2018 Thomas Hess"
 
+_app = None
+
 
 def main():
-    visual_image_splitter.application.Application()
+    global _app
+    _app = visual_image_splitter.application.Application()
 
 
 if __name__ == "__main__": 
