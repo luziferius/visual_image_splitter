@@ -18,7 +18,7 @@ import enum
 
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsSceneMouseEvent, QGraphicsRectItem
 from PyQt5.QtWidgets import QWidget, QApplication
-from PyQt5.QtCore import QRectF, QModelIndex, Qt, QObject, QPointF, pyqtSignal
+from PyQt5.QtCore import QRectF, QModelIndex, Qt, QObject, QPointF, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QPixmap, QPen, QColor, QBrush
 
 from visual_image_splitter.model.selection import Selection
@@ -195,6 +195,7 @@ class SelectionEditor(QGraphicsView):
         model.add_selection(image_index, self._from_local_coordinates(image_index, local_rectangle))
         logger.info(f"Selection drawing finished: width={local_rectangle.width()}, height={local_rectangle.height()}")
 
+    @pyqtSlot()
     def clear(self):
         self._replace_scene(QGraphicsScene(self))
         logger.info("Cleared currently opened scene")

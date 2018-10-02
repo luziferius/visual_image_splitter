@@ -52,7 +52,9 @@ class MainWindow(*inherits_from_ui_file_with_name("main_window")):
         """Connect all GUI actions with the model."""
         self.open_images.connect(model.open_images)
         self.action_save_all.triggered.connect(model.save_and_close_all_images)
+        self.action_save_all.triggered.connect(self.image_view.clear)
         self.close_image.connect(model.close_image)
+        self.close_image.connect(self.image_view.clear)
         logger.debug("Connected action signals with model signals")
 
     @pyqtSlot(QModelIndex, QModelIndex)
