@@ -32,7 +32,7 @@
      </widget>
     </item>
     <item row="0" column="2">
-     <widget class="QTableView" name="selection_list_view">
+     <widget class="QTableView" name="selection_table_view">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>5</horstretch>
@@ -42,7 +42,7 @@
      </widget>
     </item>
     <item row="0" column="0">
-     <widget class="QTreeView" name="opened_images_list_view">
+     <widget class="QTableView" name="opened_images_table_view">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>5</horstretch>

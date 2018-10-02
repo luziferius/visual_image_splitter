@@ -37,9 +37,13 @@ class MainWindow(*inherits_from_ui_file_with_name("main_window")):
         self.setupUi(self)
         self.dirty: bool = False
         self.image_view: SelectionEditor
-        self.opened_images_list_view: QTreeView
-        self.opened_images_list_view.setModel(model)
-        self.opened_images_list_view.selectionModel().currentChanged.connect(self.image_view.on_image_selection_changed)
+        self.opened_images_table_view: QTreeView
+        self.opened_images_table_view.setModel(model)
+        self.opened_images_table_view.selectionModel().currentChanged.connect(self.image_view.on_image_selection_changed)
+        self.selection_table_view: QTreeView
+        self.selection_table_view.setModel(model)
+        self.selection_table_view.setRootIndex(QModelIndex())
+        self.opened_images_table_view.selectionModel().currentChanged.connect(lambda current, last: self.selection_table_view.setRootIndex(current))
         logger.info("Created main window instance")
         self._connect_model_signals(model)
 
