@@ -22,24 +22,24 @@ Requirements
 
 - Python 3.6
 - PyQt5
-    - Requires the PyQt5 SVG module, if it is not already bundled with your PyQt5 install. (On Ubuntu, it is not bundled.)
-    - Requires the `pyrcc5` command line PyQt5 resource compiler during the installation process.
+    - Requires the PyQt5 SVG module, if it is not already bundled with your PyQt5 install. (On Ubuntu, this is in a separate package.)
+    - Requires the *pyrcc5* command line PyQt5 resource compiler during the installation process.
 
 
 Ubuntu
 ++++++
 
 Install all dependencies using this command:
-```
-sudo apt install python3-pyqt5 python3-pyqt5.qtsvg pyqt5-dev-tools
-```
+
+    sudo apt install python3-pyqt5 python3-pyqt5.qtsvg pyqt5-dev-tools
+
 
 
 Install
 -------
 
 Clone the repository using git or download a ZIP archive snapshot.
-Install the downloaded version from the source repository: **`pip3 install .`**
+Install the downloaded version from the source repository: **pip3 install .**
 
 
 Usage
