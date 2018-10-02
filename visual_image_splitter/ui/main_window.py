@@ -39,19 +39,31 @@ class MainWindow(*inherits_from_ui_file_with_name("main_window")):
         self.image_view: SelectionEditor
         self.opened_images_table_view: QTreeView
         self.opened_images_table_view.setModel(model)
-        self.opened_images_table_view.selectionModel().currentChanged.connect(self.image_view.on_image_selection_changed)
         self.selection_table_view: QTreeView
         self.selection_table_view.setModel(model)
         self.selection_table_view.setRootIndex(QModelIndex())
-        self.opened_images_table_view.selectionModel().currentChanged.connect(lambda current, last: self.selection_table_view.setRootIndex(current))
+        self.opened_images_table_view.selectionModel().currentChanged.connect(
+            self._on_image_selection_change_update_selection_table
+        )
         logger.info("Created main window instance")
         self._connect_model_signals(model)
 
     def _connect_model_signals(self, model):
+        """Connect all GUI actions with the model."""
         self.open_images.connect(model.open_images)
         self.action_save_all.triggered.connect(model.save_and_close_all_images)
         self.close_image.connect(model.close_image)
         logger.debug("Connected action signals with model signals")
+
+    @pyqtSlot(QModelIndex, QModelIndex)
+    def _on_image_selection_change_update_selection_table(self, current: QModelIndex, previous: QModelIndex):
+        logger.debug(f"Selection changed. "
+                     f"current: isValid={current.isValid()}, column={current.column()}, row={current.row()}; "
+                     f"previous: isValid={previous.isValid()}, column={previous.column()}, row={previous.row()}")
+        if current.column():
+            current = current.sibling(current.row(), 0)
+        self.selection_table_view.setRootIndex(current)
+        self.image_view.on_image_selection_changed(current, previous)
 
     def closeEvent(self, event: QCloseEvent):
         """
@@ -84,10 +96,10 @@ class MainWindow(*inherits_from_ui_file_with_name("main_window")):
 
     @pyqtSlot()
     def on_action_save_current_triggered(self):
-        selected_image = self.opened_images_list_view.selectionModel().currentIndex()
+        selected_image = self.opened_images_table_view.selectionModel().currentIndex()
         self.close_image.emit(selected_image, True)
 
     @pyqtSlot()
     def on_action_close_current_triggered(self):
-        selected_image = self.opened_images_list_view.selectionModel().currentIndex()
+        selected_image = self.opened_images_table_view.selectionModel().currentIndex()
         self.close_image.emit(selected_image, False)
