@@ -55,7 +55,7 @@ def generate_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-v", "--version",
         action="version",
-        version=f"visual_image_splitter Version {visual_image_splitter.visual_image_splitter.__version__}"
+        version=f"visual_image_splitter Version {visual_image_splitter.visual_image_splitter.VERSION}"
     )
     parser.add_argument(
         "-V", "--verbose",
