@@ -39,12 +39,17 @@ class Application(QApplication):
         self.main_window.show()
         logger.debug("Initialisation done. Starting event loop.")
         self.exec_()
+        logger.debug("Left event loop.")
 
     def shutdown(self):
+        logger.info("About to exit.")
         self.closeAllWindows()
         self.model.worker_thread.requestInterruption()
+        logger.debug("Requested worker thread to interrupt it’s work.")
         self.model.worker_thread.quit()
+        logger.debug("Requested worker thread to quit. Waiting for it to finish.")
         self.model.worker_thread.wait()
+        logger.info("Worker thread finished. Exiting…")
         self.quit()
 
     def get_currently_edited_image(self):
