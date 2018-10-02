@@ -52,7 +52,9 @@ class Image(QObject):
         self._width = self.image_data.width()
         self._height = self.image_data.height()
         logger.debug(f"Scaling low resolution image to resolution: {self._scaled_to_resolution(800)}")
-        self.low_resolution_image = QPixmap.fromImage(self.image_data.scaled(*self._scaled_to_resolution(800)))
+        self.low_resolution_image = QPixmap.fromImage(
+            self.image_data.scaled(*self._scaled_to_resolution(800), transformMode=Qt.SmoothTransformation)
+        )
 
     def add_selection(self, selection: Selection):
         """
