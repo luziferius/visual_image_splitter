@@ -16,21 +16,37 @@ steps to perform a multi-image split.
 You can load all your scanned image files at once. In each file, draw as many selection rectangles as needed, and then
 extract them all at once.
 
+
 Requirements
 ------------
 
 - Python 3.6
 - PyQt5
+    - Requires the PyQt5 SVG module, if it is not already bundled with your PyQt5 install. (On Ubuntu, it is not bundled.)
+    - Requires the `pyrcc5` command line PyQt5 resource compiler during the installation process.
+
+
+Ubuntu
+++++++
+
+Install all dependencies using this command:
+```
+sudo apt install python3-pyqt5 python3-pyqt5.qtsvg pyqt5-dev-tools
+```
+
 
 Install
 -------
 
-Install the latest version from the source repository: **python3 setup.py install**
+Clone the repository using git or download a ZIP archive snapshot.
+Install the downloaded version from the source repository: **`pip3 install .`**
+
 
 Usage
 -----
 
 Execute *visual_image_splitter* to start the program and show the main window.
+
 
 Command line arguments
 ++++++++++++++++++++++
@@ -50,15 +66,18 @@ Visual Image splitter accepts some command line switches:
 - List of image files
     - visual_image_splitter accepts a list of image files as positional arguments. These image files will be loaded on program start.
 
+
 Command line examples
 +++++++++++++++++++++
 TODO.
 
+
 User interface
 ++++++++++++++
 
-The area on the left side shows the list of the currently opened images. Selecting one image opens it for selection editing.
+The area on the left side shows a list with all currently opened images. Selecting one image opens it for selection editing.
 The middle area is the selection editor. It shows the currently selected image, displays all selections for that file and allows drawing new selections.
+The right area shows all selections for the currently edited image.
 
 About
 -----

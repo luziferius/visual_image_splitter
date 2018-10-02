@@ -3,7 +3,6 @@ Model
 
 - Implement re-ordering selections
 - Implement setting custom output directories for files
-- Properly implement the QT Model API.
 - Deleting selections for files
 - Lossless mode for JFIF files (.jpeg), using the `jpegtran` tool.
 
