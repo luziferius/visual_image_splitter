@@ -114,9 +114,14 @@ class SelectionScene(QGraphicsScene):
             event.accept()
 
     def load_selections(self, current: QModelIndex):
-        selections: typing.List[Selection] = current.sibling(current.row(), 1).data(Qt.UserRole)
-        for rectangle in selections:
-            self._draw_rectangle(current, rectangle)
+        selection_count: int = current.model().rowCount(current)  # The number of child nodes, which are selections
+        current_first_column = current.sibling(current.row(), 0)  # Selections are below the first column
+        selections: typing.List[Selection] = [
+            current_first_column.child(index, 0).data(Qt.UserRole) for index in range(selection_count)
+        ]
+        logger.debug(f"Loading selection list: {selections}")
+        for selection in selections:
+            self._draw_rectangle(current, selection)
 
     def _restrict_to_scene_space(self, point: QPointF):
         """Restrict rectangle drawing to the screen space. This prevents drawing out of the source image bounds."""
