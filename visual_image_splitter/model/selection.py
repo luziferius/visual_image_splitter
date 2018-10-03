@@ -15,6 +15,7 @@
 
 
 import typing
+import enum
 
 from PyQt5.QtCore import QRect, QPoint, QSize, QRectF, QVariant, Qt
 
@@ -24,9 +25,15 @@ if typing.TYPE_CHECKING:
     from .image import Image
 
 
+class Columns(enum.IntEnum):
+    SELECTION = 0
+    TOP_LEFT = 1
+    BOTTOM_RIGHT = 2
+
+
 class Selection:
 
-    QT_COLUMN_COUNT = 2  # Number of columns. Used in the Qt Model API.
+    QT_COLUMN_COUNT = 3  # Number of columns. Used in the Qt Model API.
 
     def __init__(self, point1: Point, point2: Point, parent_image=None):
         self.top_left, self.bottom_right = Selection._normalize(point1, point2)
@@ -88,16 +95,20 @@ class Selection:
 
     def _get_column_display_data_for_row(self, column: int) -> QVariant:
         """Returns column data for Qt.DisplayRole. REQUIRES a valid column index."""
-        if column == 0:
+        if column == Columns.SELECTION:
+            return QVariant(str(self))
+        elif column == Columns.TOP_LEFT:
             return QVariant(str(self.top_left))
-        elif column == 1:
+        elif column == Columns.BOTTOM_RIGHT:
             return QVariant(str(self.bottom_right))
 
     def _get_user_data_for_row(self, column: int):
         """Returns column data for Qt.UserRole. REQUIRES a valid column index."""
-        if column == 0:
+        if column == Columns.SELECTION:
+            return QVariant(self)
+        elif column == Columns.TOP_LEFT:
             return QVariant(self.top_left)
-        elif column == 1:
+        elif column == Columns.BOTTOM_RIGHT:
             return QVariant(self.bottom_right)
 
     def child(self, row: int):
