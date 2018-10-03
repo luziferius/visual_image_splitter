@@ -26,6 +26,8 @@ if typing.TYPE_CHECKING:
 
 class Selection:
 
+    QT_COLUMN_COUNT = 2  # Number of columns. Used in the Qt Model API.
+
     def __init__(self, point1: Point, point2: Point, parent_image=None):
         self.top_left, self.bottom_right = Selection._normalize(point1, point2)
         self._parent: Image = parent_image
@@ -62,23 +64,21 @@ class Selection:
         return 0
 
     def row(self) -> int:
-        """Qt Model function."""
+        """
+        Qt Model function. This function returns this selections own row number. It is used to create QModelIndex
+        instances.
+        """
         if self.parent is None:
             return 0
         else:
             return self.parent().selections.index(self)
 
-    def data(self, column: int, role) -> QVariant:
-        """Qt Model function."""
-        if column == 0:
-            return QVariant(self.top_left)
-        elif column == 1:
-            return QVariant(self.bottom_right)
-        else:
+    def data(self, column: int, role: int=Qt.DisplayRole) -> QVariant:
+        """Qt Model function. Returns the own data using the Qt Model API"""
+        if column not in range(0, Selection.QT_COLUMN_COUNT):
+            # Short-cut invalid columns now
             return QVariant()
 
-    def data(self, column: int, role: int=Qt.DisplayRole) -> QVariant:
-        """Qt Model function. Returns the own data using the Qt model API"""
         if role == Qt.DisplayRole:
             return self._get_column_display_data_for_row(column)
         elif role == Qt.UserRole:
@@ -87,23 +87,25 @@ class Selection:
             return QVariant()
 
     def _get_column_display_data_for_row(self, column: int) -> QVariant:
+        """Returns column data for Qt.DisplayRole. REQUIRES a valid column index."""
         if column == 0:
             return QVariant(str(self.top_left))
         elif column == 1:
             return QVariant(str(self.bottom_right))
-        else:
-            # Invalid column
-            return QVariant()
 
     def _get_user_data_for_row(self, column: int):
+        """Returns column data for Qt.UserRole. REQUIRES a valid column index."""
         if column == 0:
             return QVariant(self.top_left)
         elif column == 1:
             return QVariant(self.bottom_right)
-        else:
-            return QVariant()
 
     def child(self, row: int):
+        """
+        Part of the tree model. Keeps the API stable for mixed types. Selection never has children.
+        row_count() always returns zero, so this function should never be called by Qt model views.
+        """
+        del row   # No unused parameter…
         return None
 
     def parent(self):
@@ -111,6 +113,7 @@ class Selection:
 
     @property
     def as_qrectf(self) -> QRectF:
+        """Converts the selection to a QRectF. This is used by the SelectionScene QGraphicsScene to draw Selections."""
         return QRectF(QPoint(*self.top_left), QPoint(*self.bottom_right))
 
     @property

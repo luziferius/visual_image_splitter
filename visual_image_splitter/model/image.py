@@ -33,6 +33,8 @@ class Image(QObject):
     """This class models an opened image file."""
     write_output_progress = pyqtSignal(int)
 
+    QT_COLUMN_COUNT = 3  # Number of columns. Used in the Qt Model API.
+
     def __init__(self, source_file: Path, parent: QObject=None):
         super(Image, self).__init__(parent)
         self.image_path: Path = source_file.expanduser()
@@ -77,6 +79,10 @@ class Image(QObject):
 
     def data(self, column: int, role: int=Qt.DisplayRole) -> QVariant:
         """Qt Model function. Returns the own data using the Qt model API"""
+        if column not in range(0, Selection.QT_COLUMN_COUNT):
+            # Short-cut invalid columns now
+            return QVariant()
+
         if role == Qt.DisplayRole:
             return self._get_column_display_data_for_row(column)
         elif role == Qt.BackgroundRole:
@@ -93,9 +99,6 @@ class Image(QObject):
             return QVariant(str(self.image_path))
         elif column == 2:
             return QVariant(str(self.output_path))
-        else:
-            # Invalid column
-            return QVariant()
 
     def _get_background_data_for_row(self, column: int) -> QVariant:
         if column == 0:
@@ -107,11 +110,9 @@ class Image(QObject):
         if column == 0:
             return QVariant(self)
         elif column == 1:
-            return QVariant(self.selections)
+            return QVariant(self.image_path)
         elif column == 2:
             return QVariant(self.output_path)
-        else:
-            return QVariant()
 
     def row(self) -> int:
         """Qt Model function. Returns the own row, that is the own position inside the parent image list."""
