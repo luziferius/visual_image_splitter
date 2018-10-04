@@ -15,6 +15,7 @@
 
 from pathlib import Path
 import typing
+import enum
 
 from PyQt5.QtCore import pyqtSignal, QObject, QThread, QVariant, Qt
 from PyQt5.QtGui import QImage, QImageReader, QImageWriter, QPixmap
@@ -27,6 +28,13 @@ if typing.TYPE_CHECKING:
     from .model import Model
 
 logger = get_logger("Image")
+
+
+@enum.unique
+class Columns(enum.IntEnum):
+    IMAGE = 0
+    IMAGE_PATH = 1
+    OUTPUT_PATH = 2
 
 
 class Image(QObject):
@@ -93,25 +101,25 @@ class Image(QObject):
             return QVariant()
 
     def _get_column_display_data_for_row(self, column: int) -> QVariant:
-        if column == 0:
+        if column == Columns.IMAGE:
             return QVariant(str(self.low_resolution_image))
-        elif column == 1:
+        elif column == Columns.IMAGE_PATH:
             return QVariant(str(self.image_path))
-        elif column == 2:
+        elif column == Columns.OUTPUT_PATH:
             return QVariant(str(self.output_path))
 
     def _get_background_data_for_row(self, column: int) -> QVariant:
-        if column == 0:
+        if column == Columns.IMAGE:
             return QVariant(self.low_resolution_image)
         else:
             return QVariant()
 
     def _get_user_data_for_row(self, column: int):
-        if column == 0:
+        if column == Columns.IMAGE:
             return QVariant(self)
-        elif column == 1:
+        elif column == Columns.IMAGE_PATH:
             return QVariant(self.image_path)
-        elif column == 2:
+        elif column == Columns.OUTPUT_PATH:
             return QVariant(self.output_path)
 
     def row(self) -> int:

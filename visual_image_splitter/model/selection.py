@@ -25,6 +25,7 @@ if typing.TYPE_CHECKING:
     from .image import Image
 
 
+@enum.unique
 class Columns(enum.IntEnum):
     SELECTION = 0
     TOP_LEFT = 1
@@ -111,7 +112,8 @@ class Selection:
         elif column == Columns.BOTTOM_RIGHT:
             return QVariant(self.bottom_right)
 
-    def child(self, row: int):
+    @staticmethod
+    def child(row: int):
         """
         Part of the tree model. Keeps the API stable for mixed types. Selection never has children.
         row_count() always returns zero, so this function should never be called by Qt model views.
