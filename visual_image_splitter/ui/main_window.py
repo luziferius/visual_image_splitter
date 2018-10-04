@@ -21,6 +21,7 @@ from PyQt5.QtWidgets import QWidget, QApplication, QTableView
 from visual_image_splitter.ui.common import inherits_from_ui_file_with_name
 from visual_image_splitter.ui.selection_editor import SelectionEditor
 from visual_image_splitter.ui.open_images_dialog import OpenImagesDialog
+from visual_image_splitter.ui.image_list_delegate import ImageListItemDelegate
 from ._logger import get_logger
 
 logger = get_logger("main_window")
@@ -39,6 +40,9 @@ class MainWindow(*inherits_from_ui_file_with_name("main_window")):
         self.image_view: SelectionEditor
         self.opened_images_table_view: QTableView
         self.opened_images_table_view.setModel(model)
+        # Qt Views do not take ownership of delegates. Keep the reference to prevent Python from garbage-collecting it.
+        self.image_view_delegate = ImageListItemDelegate(self)
+        self.opened_images_table_view.setItemDelegate(self.image_view_delegate)
         self.selection_table_view: QTableView
         self.selection_table_view.setModel(model)
         self.selection_table_view.setRootIndex(QModelIndex())
