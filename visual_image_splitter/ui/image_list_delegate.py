@@ -16,8 +16,8 @@
 from pathlib import Path
 
 from PyQt5 import QtGui
-from PyQt5.QtCore import Qt, QObject, QModelIndex, QAbstractItemModel, pyqtSlot
-from PyQt5.QtWidgets import QWidget, QPushButton, QStyledItemDelegate, QStyleOptionViewItem, QLineEdit
+from PyQt5.QtCore import Qt, QObject, QModelIndex, QAbstractItemModel, pyqtSlot, QSize
+from PyQt5.QtWidgets import QWidget, QPushButton, QStyledItemDelegate, QStyleOptionViewItem, QLineEdit, QStyle
 
 from visual_image_splitter.model.image import Image
 from .common import inherits_from_ui_file_with_name
@@ -26,8 +26,8 @@ from .choose_dir_dialog import OutputDirDialog
 
 class ImageListItemEditor(*inherits_from_ui_file_with_name("image_list_item_editor")):
     """
-    This widget implements an Item editor for the opened image view. It is instantiated by the view class
-    whenever item editing is requested. (Usually by double-clicking an item in the view.
+    This widget implements an Item editor for the opened image view. It is shown by the view class
+    whenever item editing is requested. (Usually by double-clicking an item in the view or any other edit trigger).
     """
     def __init__(self, parent: QWidget=None):
         super(ImageListItemEditor, self).__init__(parent)
@@ -40,6 +40,10 @@ class ImageListItemEditor(*inherits_from_ui_file_with_name("image_list_item_edit
 
     @pyqtSlot()
     def on_show_directory_chooser(self):
+        """
+        Show a directory chooser dialog. If accepted, it will populate the output_path_chooser line edit with
+        the selected path.
+        """
         if self.output_path_chooser.exec_() == OutputDirDialog.Accepted:
             path_string = self.output_path_chooser.selectedFiles()[0]
             self.output_path_line_edit: QLineEdit
@@ -47,6 +51,7 @@ class ImageListItemEditor(*inherits_from_ui_file_with_name("image_list_item_edit
             self.output_path = Path(path_string)
 
     def set_data_from_index(self, index: QModelIndex):
+        """Called by the ImageListItemDelegate to populate the editor with model data."""
         image: Image = index.sibling(index.row(), 0).data(Qt.UserRole)
         self.input_file_path = image.image_path
         self.output_path = image.output_path
@@ -64,7 +69,27 @@ class ImageListItemDelegate(QStyledItemDelegate):
         return ImageListItemEditor(parent)
 
     def paint(self, painter: QtGui.QPainter, option: QStyleOptionViewItem, index: QModelIndex):
-        pass
+        if isinstance(index.data(Qt.UserRole), Image):
+            self._paint(painter, option, index)
+        else:
+            super(ImageListItemDelegate, self).paint(painter, option, index)
+
+    def _paint(self, painter: QtGui.QPainter, option: QStyleOptionViewItem, index: QModelIndex):
+        self._setup_painter(painter)
+        self._paint_selection_highlight(option, painter)
+        pass  # now paint the delegate
+        painter.restore()
+
+    @staticmethod
+    def _setup_painter(painter):
+        painter.save()
+        painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
+        painter.setPen(Qt.NoPen)
+
+    @staticmethod
+    def _paint_selection_highlight(option, painter):
+        if option.state & QStyle.State_Selected:
+            painter.fillRect(option.rect, option.palette.highlight())
 
     def setEditorData(self, editor: ImageListItemEditor, index: QModelIndex):
         editor.set_data_from_index(index)
@@ -72,8 +97,8 @@ class ImageListItemDelegate(QStyledItemDelegate):
     def setModelData(self, editor: ImageListItemEditor, model: QAbstractItemModel, index: QModelIndex):
         pass
 
-    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex):
-        pass
+    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
+        return QSize(150, 150)
 
     def updateEditorGeometry(self, editor: ImageListItemEditor, option: QStyleOptionViewItem, index: QModelIndex):
         editor.setGeometry(option.rect)
