@@ -31,9 +31,7 @@ class Model(QAbstractItemModel):
     """
     Holds the Image data. This implements a Qt Model class.
     Column definitions:
-     - 0: Image data
-     - 1: image file path
-     - 3: Output path
+      See Columns enumerations in image.py and selection.py.
     """
 
     # These signals are used start long running operations in the background. They are connected to slots in the
@@ -41,7 +39,7 @@ class Model(QAbstractItemModel):
     open_command_line_given_images = pyqtSignal()
     open_images = pyqtSignal(list)
     save_and_close_all_images = pyqtSignal()
-    close_image = pyqtSignal(QModelIndex, bool)
+    close_image = pyqtSignal(QModelIndex, bool)  # boolean parameter: True: save selections to files, False: discard
 
     def __init__(self, args, parent: QObject=None):
         """
@@ -151,7 +149,11 @@ class Model(QAbstractItemModel):
         self.endRemoveRows()
 
     def _close_image(self, model_index: QModelIndex, save_selections: bool=True):
-        """Save and close a single image file."""
+        """
+        Optionally save and then close a single image file.
+        :param model_index: QModelIndex pointing to an Image instance.
+        :param save_selections: True: Save all selections to files. False: Discard all selections. Don’t write anything.
+        """
         if model_index.isValid() and not model_index.parent().isValid() and model_index.row() < self.rowCount():
             row = model_index.row()
             logger.info(f"Closing file at row {row}. File: {self.images[row]}, write selections: {save_selections}")
@@ -213,9 +215,11 @@ class Model(QAbstractItemModel):
         if not index.isValid():
             return QVariant()
         item = index.internalPointer()
+        # Delegate to the model instance data() method
         return item.data(index.column(), role)
 
     def headerData(self, section: int, orientation: Qt.Orientation, role: int = Qt.DisplayRole):
+        """Qt Model API function. Returns the data used for table header display."""
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
             if section == 0:
                 return "Image"
