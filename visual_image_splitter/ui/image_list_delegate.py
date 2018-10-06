@@ -20,7 +20,7 @@ from PyQt5.QtCore import Qt, QObject, QModelIndex, QAbstractItemModel, pyqtSlot,
 from PyQt5.QtWidgets import QWidget, QPushButton, QStyledItemDelegate, QStyleOptionViewItem, QLineEdit, QStyle
 
 from visual_image_splitter.model.image import Image
-from .common import inherits_from_ui_file_with_name
+from .common import inherits_from_ui_file_with_name, set_url_label
 from .choose_dir_dialog import OutputDirDialog
 
 
@@ -56,7 +56,7 @@ class ImageListItemEditor(*inherits_from_ui_file_with_name("image_list_item_edit
         self.input_file_path = image.image_path
         self.output_path = image.output_path
         self.output_path_line_edit.setText(str(image.output_path))
-        self.file_name_label.setText(self.input_file_path.name)
+        set_url_label(self.file_name_label, self.input_file_path, self.input_file_path.name)
         self.selection_count_label.setText(str(len(image.selections)))
 
 
