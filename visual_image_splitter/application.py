@@ -16,6 +16,7 @@
 import sys
 import typing
 
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QApplication
 
 from visual_image_splitter.argument_parser import parse_arguments
@@ -41,6 +42,7 @@ class Application(QApplication):
         self.exec_()
         logger.debug("Left event loop.")
 
+    @pyqtSlot()
     def shutdown(self):
         logger.info("About to exit.")
         self.closeAllWindows()

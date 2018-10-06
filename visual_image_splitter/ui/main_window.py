@@ -86,6 +86,9 @@ class MainWindow(*inherits_from_ui_file_with_name("main_window")):
         if self.dirty:
             # TODO: Unsaved changes. Ask the user what to do: Save and exit, Discard and exit, or keep running?
             pass
+        # Prevent a loop, because shutdown() closes this window, causing closeEvent to fire, in turn causing this to be
+        # called again. So just disconnect the signal. The connection won’t be needed during application shutdown.
+        self.action_quit.triggered.disconnect(self.on_action_quit_triggered)
         QApplication.instance().shutdown()
 
     @pyqtSlot()
