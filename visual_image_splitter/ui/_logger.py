@@ -18,7 +18,7 @@ import visual_image_splitter.logger
 
 __all__ = ["logger", "get_logger"]
 
-logger = visual_image_splitter.logger.root_logger.getChild("GUI")  # type: logging.Logger
+logger: logging.Logger = visual_image_splitter.logger.root_logger.getChild("GUI")
 
 
 def get_logger(name: str) -> logging.Logger:

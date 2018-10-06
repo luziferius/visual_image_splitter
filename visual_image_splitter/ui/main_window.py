@@ -20,8 +20,8 @@ from PyQt5.QtWidgets import QWidget, QApplication, QTableView
 
 from visual_image_splitter.ui.common import inherits_from_ui_file_with_name
 from visual_image_splitter.ui.selection_editor import SelectionEditor
-from visual_image_splitter.ui._logger import get_logger
 from visual_image_splitter.ui.open_images_dialog import OpenImagesDialog
+from ._logger import get_logger
 
 logger = get_logger("main_window")
 
