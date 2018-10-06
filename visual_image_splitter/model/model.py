@@ -20,7 +20,7 @@ from PyQt5.QtCore import QObject, QAbstractItemModel, QModelIndex, QVariant, Qt,
 
 from visual_image_splitter.model.selection_preset import SelectionPreset
 from .selection import Selection
-from .image import Image
+from .image import Image, Columns as ImageColums
 from ._logger import get_logger
 from .async_io import ModelWorker
 
@@ -182,8 +182,6 @@ class Model(QAbstractItemModel):
 
     def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
         """Qt Model API function. Returns the number of rows/children for the given parent."""
-        if parent.column() > 0:
-            return 0
         if not parent.isValid():
             return len(self.images)
         else:
@@ -209,7 +207,7 @@ class Model(QAbstractItemModel):
             # Image instances have this as a parent, thus it is a top level access. Thus, there is no parent
             return QModelIndex()
         else:
-            return self.createIndex(parent.row(), 0, parent)
+            return self.createIndex(parent.row(), ImageColums.IMAGE, parent)
 
     def data(self, index: QModelIndex, role: int = Qt.DisplayRole) -> QVariant:
         if not index.isValid():
@@ -219,12 +217,18 @@ class Model(QAbstractItemModel):
         return item.data(index.column(), role)
 
     def headerData(self, section: int, orientation: Qt.Orientation, role: int = Qt.DisplayRole):
-        """Qt Model API function. Returns the data used for table header display."""
+        """
+        Qt Model API function. Returns the data used for table header display.
+        Because the model tree is non-uniform with different classes and column meanings on different nesting levels,
+        this doesn’t work well. The data here only represents the top level Image class.
+        Proper table display for Selections needs another proxy model, because Qt does not support variable header data
+        based on nesting depth / model indices.
+        """
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
-            if section == 0:
+            if section == ImageColums.IMAGE:
                 return "Image"
-            elif section == 1:
+            elif section == ImageColums.IMAGE_PATH:
                 return "Image path"
-            elif section == 2:
+            elif section == ImageColums.OUTPUT_PATH:
                 return "Output path"
         return QVariant()
