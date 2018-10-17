@@ -51,7 +51,7 @@ else:
     atexit.register(visual_image_splitter.ui.compiled_resources.qCleanupResources)
 
 
-def set_url_label(label: QLabel, path: pathlib.Path):
+def set_url_label(label: QLabel, path: pathlib.Path, display_text: str=None):
 
     url = QUrl.fromLocalFile(str(path.expanduser()))
     if not label.openExternalLinks():
@@ -59,7 +59,9 @@ def set_url_label(label: QLabel, path: pathlib.Path):
         raise ValueError(
             f"QLabel with disabled openExternalLinks property used to display an external URL. This won’t work, so "
             f"fail now. Label: {label}, Text: {label.text()}")
-    label.setText(f"""<a href="{url.path(QUrl.FullyEncoded):s}">{path:s}</a>""")
+    if not display_text:
+        display_text = str(path)
+    label.setText(f"""<a href="{url.path(QUrl.FullyEncoded):s}">{display_text:s}</a>""")
 
 
 @functools.lru_cache()
