@@ -55,4 +55,4 @@ class Application(QApplication):
         self.quit()
 
     def get_currently_edited_image(self):
-        return self.main_window.opened_images_table_view.currentIndex()
+        return self.main_window.opened_images_list_view.currentIndex()

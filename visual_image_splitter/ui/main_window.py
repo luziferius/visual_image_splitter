@@ -16,7 +16,7 @@
 
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QModelIndex
 from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtWidgets import QWidget, QApplication, QTableView
+from PyQt5.QtWidgets import QWidget, QApplication, QTableView, QListView
 
 from visual_image_splitter.ui.common import inherits_from_ui_file_with_name
 from visual_image_splitter.ui.selection_editor import SelectionEditor
@@ -38,15 +38,15 @@ class MainWindow(*inherits_from_ui_file_with_name("main_window")):
         self.setupUi(self)
         self.dirty: bool = False
         self.image_view: SelectionEditor
-        self.opened_images_table_view: QTableView
-        self.opened_images_table_view.setModel(model)
+        self.opened_images_list_view: QListView
+        self.opened_images_list_view.setModel(model)
         # Qt Views do not take ownership of delegates. Keep the reference to prevent Python from garbage-collecting it.
         self.image_view_delegate = ImageListItemDelegate(self)
-        self.opened_images_table_view.setItemDelegate(self.image_view_delegate)
+        self.opened_images_list_view.setItemDelegate(self.image_view_delegate)
         self.selection_table_view: QTableView
         self.selection_table_view.setModel(model)
         self.selection_table_view.setRootIndex(QModelIndex())
-        self.opened_images_table_view.selectionModel().currentRowChanged.connect(
+        self.opened_images_list_view.selectionModel().currentRowChanged.connect(
             self._on_image_selection_change_update_selection_table
         )
         logger.info("Created main window instance")
@@ -105,10 +105,10 @@ class MainWindow(*inherits_from_ui_file_with_name("main_window")):
 
     @pyqtSlot()
     def on_action_save_current_triggered(self):
-        selected_image = self.opened_images_table_view.selectionModel().currentIndex()
+        selected_image = self.opened_images_list_view.selectionModel().currentIndex()
         self.close_image.emit(selected_image, True)
 
     @pyqtSlot()
     def on_action_close_current_triggered(self):
-        selected_image = self.opened_images_table_view.selectionModel().currentIndex()
+        selected_image = self.opened_images_list_view.selectionModel().currentIndex()
         self.close_image.emit(selected_image, False)
