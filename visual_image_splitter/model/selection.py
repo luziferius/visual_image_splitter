@@ -64,7 +64,7 @@ class Selection:
     @staticmethod
     def column_count() -> int:
         """Qt Model function."""
-        return 2
+        return len(Columns)
 
     @staticmethod
     def row_count() -> int:

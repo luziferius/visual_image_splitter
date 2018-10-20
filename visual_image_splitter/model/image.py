@@ -47,7 +47,6 @@ class Image(QObject):
         super(Image, self).__init__(parent)
         self.image_path: Path = source_file.expanduser()
         self.selections: typing.List[Selection] = []
-        self.thumbnails: typing.Dict[Selection, QPixmap] = {}
         self.low_resolution_image: QPixmap = None
         self.output_path: Path = source_file.parent
         self.image_data: QImage = None
@@ -74,7 +73,6 @@ class Image(QObject):
         """
         logger.info(f"Adding a new selection: {selection}")
         self.selections.append(selection)
-        self.thumbnails[selection] = self.low_resolution_image.copy(selection.as_qrect)
 
     def row_count(self) -> int:
         """Returns the number of selections. This is the number of child rows in the Qt TreeModel."""
@@ -83,7 +81,7 @@ class Image(QObject):
     @staticmethod
     def column_count() -> int:
         """Number of Qt TreeModel columns. This contains the image data, image path and the output path."""
-        return 3
+        return len(Columns)
 
     def data(self, column: int, role: int=Qt.DisplayRole) -> QVariant:
         """Qt Model function. Returns the own data using the Qt model API"""
@@ -167,14 +165,8 @@ class Image(QObject):
 
     def remove_selection(self, selection: typing.Union[int, Selection]):
         if isinstance(selection, Selection):
-            try:
-                self.selections.remove(selection)
-            except ValueError:
-                raise  # TODO: Is this an error?
-            else:
-                del self.thumbnails[selection]
+            self.selections.remove(selection)
         else:
-            del self.thumbnails[self.selections[selection]]
             del self.selections[selection]
 
     @property
