@@ -18,6 +18,7 @@ import typing
 import enum
 
 from PyQt5.QtCore import QRect, QPoint, QSize, QRectF, QVariant, Qt
+from PyQt5.QtGui import QPixmap
 
 from .point import Point
 
@@ -60,6 +61,13 @@ class Selection:
             QPoint(*self.top_left),
             QSize(self.bottom_right.x-self.top_left.x, self.bottom_right.y-self.top_left.y)
         )
+
+    @property
+    def thumbnail(self):
+        if self._parent is None:
+            return QPixmap()
+        else:
+            return self._parent.low_resolution_image.copy(self.as_qrect)
 
     @staticmethod
     def column_count() -> int:
