@@ -16,12 +16,13 @@
 from pathlib import Path
 
 from PyQt5 import QtGui
-from PyQt5.QtCore import Qt, QObject, QModelIndex, QAbstractItemModel, pyqtSlot, QSize, QRectF, QRect
-from PyQt5.QtWidgets import QWidget, QPushButton, QStyledItemDelegate, QStyleOptionViewItem, QLineEdit, QStyle
+from PyQt5.QtCore import Qt, QObject, QModelIndex, QAbstractItemModel, pyqtSlot, QSize, QRect
+from PyQt5.QtWidgets import QWidget, QPushButton, QStyleOptionViewItem, QLineEdit
 
 from visual_image_splitter.model.image import Image
 from .common import inherits_from_ui_file_with_name, set_url_label
 from .choose_dir_dialog import OutputDirDialog
+from .custom_image_delegate_base import CustomItemDelegateBase
 
 
 class ImageListItemEditor(*inherits_from_ui_file_with_name("image_list_item_editor")):
@@ -60,7 +61,7 @@ class ImageListItemEditor(*inherits_from_ui_file_with_name("image_list_item_edit
         self.selection_count_label.setText(str(len(image.selections)))
 
 
-class ImageListItemDelegate(QStyledItemDelegate):
+class ImageListItemDelegate(CustomItemDelegateBase):
 
     def __init__(self, parent: QObject=None):
         super(ImageListItemDelegate, self).__init__(parent)
@@ -70,49 +71,30 @@ class ImageListItemDelegate(QStyledItemDelegate):
 
     def paint(self, painter: QtGui.QPainter, option: QStyleOptionViewItem, index: QModelIndex):
         if isinstance(index.data(Qt.UserRole), Image):
-            self._paint(painter, option, index)
+            ImageListItemDelegate._paint(painter, option, index)
         else:
             super(ImageListItemDelegate, self).paint(painter, option, index)
 
-    def _paint(self, painter: QtGui.QPainter, option: QStyleOptionViewItem, index: QModelIndex):
-        self._setup_painter(painter)
-        self._paint_selection_highlight(option, painter)
-        self._paint_image(painter, option, index)
+    @staticmethod
+    def _paint(painter: QtGui.QPainter, option: QStyleOptionViewItem, index: QModelIndex):
+        ImageListItemDelegate._setup_painter(painter)
+        ImageListItemDelegate._paint_selection_highlight(option, painter)
+        ImageListItemDelegate._paint_image(painter, option, index)
         painter.restore()
-
-    @staticmethod
-    def _setup_painter(painter):
-        painter.save()
-        painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
-        painter.setPen(Qt.NoPen)
-
-    @staticmethod
-    def _paint_selection_highlight(option, painter):
-        if option.state & QStyle.State_Selected:
-            painter.fillRect(option.rect, option.palette.highlight())
 
     @staticmethod
     def _paint_image(painter: QtGui.QPainter, option: QStyleOptionViewItem, index: QModelIndex):
         image: Image = index.data(Qt.UserRole)
         image_region = ImageListItemDelegate._scale_image(image, option)
-        painter.drawPixmap(image_region, image.low_resolution_image, QRectF(image.low_resolution_image.rect()))
+        painter.drawPixmap(image_region, image.low_resolution_image)
 
     @staticmethod
-    def _scale_image(image: Image, option: QStyleOptionViewItem) -> QRectF:
-        source_aspect_ratio = image.width/image.height
-        target_image_region = ImageListItemDelegate._set_border(option.rect, 4)
-        target_image_region.setWidth(target_image_region.height()*source_aspect_ratio)
+    def _scale_image(image: Image, option: QStyleOptionViewItem) -> QRect:
+        source_aspect_ratio = image.width / image.height
+        target_image_region = ImageListItemDelegate._create_qrect_with_border(option.rect, 4)
+        target_image_region.setWidth(round(target_image_region.height() * source_aspect_ratio))
 
         return target_image_region
-    
-    @staticmethod
-    def _set_border(source: QRect, border: float) -> QRectF:
-        target = QRectF(source)
-        target.setRight(target.right() - border)
-        target.setLeft(target.left() + border)
-        target.setTop(target.top() + border)
-        target.setBottom(target.bottom() - border)
-        return target
 
     def setEditorData(self, editor: ImageListItemEditor, index: QModelIndex):
         editor.set_data_from_index(index)

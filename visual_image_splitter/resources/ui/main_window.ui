@@ -31,19 +31,6 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="2">
-     <widget class="QTableView" name="selection_table_view">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>5</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <attribute name="verticalHeaderVisible">
-       <bool>false</bool>
-      </attribute>
-     </widget>
-    </item>
     <item row="0" column="0">
      <widget class="QListView" name="opened_images_list_view">
       <property name="sizePolicy">
@@ -63,6 +50,16 @@
       </property>
      </widget>
     </item>
+    <item row="0" column="2">
+     <widget class="QListView" name="selection_list_view">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>5</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -71,7 +68,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>28</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

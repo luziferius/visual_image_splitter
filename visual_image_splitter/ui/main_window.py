@@ -22,6 +22,7 @@ from visual_image_splitter.ui.common import inherits_from_ui_file_with_name
 from visual_image_splitter.ui.selection_editor import SelectionEditor
 from visual_image_splitter.ui.open_images_dialog import OpenImagesDialog
 from visual_image_splitter.ui.image_list_delegate import ImageListItemDelegate
+from visual_image_splitter.ui.selection_list_delegate import SelectionListItemDelegate
 from ._logger import get_logger
 
 logger = get_logger("main_window")
@@ -43,9 +44,11 @@ class MainWindow(*inherits_from_ui_file_with_name("main_window")):
         # Qt Views do not take ownership of delegates. Keep the reference to prevent Python from garbage-collecting it.
         self.image_view_delegate = ImageListItemDelegate(self)
         self.opened_images_list_view.setItemDelegate(self.image_view_delegate)
-        self.selection_table_view: QTableView
-        self.selection_table_view.setModel(model)
-        self.selection_table_view.setRootIndex(QModelIndex())
+        self.selection_list_view: QListView
+        self.selection_list_view.setModel(model)
+        self.selection_list_view.setRootIndex(QModelIndex())
+        self.selection_viev_delegate = SelectionListItemDelegate(self)
+        self.selection_list_view.setItemDelegate(self.selection_viev_delegate)
         self.opened_images_list_view.selectionModel().currentRowChanged.connect(
             self._on_image_selection_change_update_selection_table
         )
@@ -68,7 +71,7 @@ class MainWindow(*inherits_from_ui_file_with_name("main_window")):
                      f"previous: isValid={previous.isValid()}, column={previous.column()}, row={previous.row()}")
         if current.column():
             current = current.sibling(current.row(), 0)
-        self.selection_table_view.setRootIndex(current)
+        self.selection_list_view.setRootIndex(current)
         self.image_view.on_image_selection_changed(current, previous)
 
     def closeEvent(self, event: QCloseEvent):

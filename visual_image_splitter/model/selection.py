@@ -21,9 +21,12 @@ from PyQt5.QtCore import QRect, QPoint, QSize, QRectF, QVariant, Qt
 from PyQt5.QtGui import QPixmap
 
 from .point import Point
+from ._logger import get_logger
 
 if typing.TYPE_CHECKING:
     from .image import Image
+
+logger = get_logger("Selection")
 
 
 @enum.unique
@@ -38,8 +41,10 @@ class Selection:
     QT_COLUMN_COUNT = 3  # Number of columns. Used in the Qt Model API.
 
     def __init__(self, point1: Point, point2: Point, parent_image=None):
+        logger.info(f"Creating Selection, using points {point1}, {point2}, has_parent={parent_image is not None}")
         self.top_left, self.bottom_right = Selection._normalize(point1, point2)
         self._parent: Image = parent_image
+        logger.debug(f"Normalized input points to {self.top_left}, {self.bottom_right}")
 
     @staticmethod
     def _normalize(point1: Point, point2: Point) -> typing.Tuple[Point, Point]:
@@ -65,9 +70,24 @@ class Selection:
     @property
     def thumbnail(self):
         if self._parent is None:
+            logger.info(f"Requested thumbnail for {self}, but parent is None. Returning empty QPixmap.")
             return QPixmap()
         else:
-            return self._parent.low_resolution_image.copy(self.as_qrect)
+            low_resolution_image = self.parent().low_resolution_image
+            # The low_resolution_image has the same aspect ratio as the source image, so computing the scaling from
+            # only one dimension is ok.
+            thumbnail_rect = self.as_qrect
+            scaling_factor = low_resolution_image.width() / self._parent.width
+            logger.info(f"Requested thumbnail for {self}. Scaling_factor={scaling_factor}")
+            if scaling_factor < 1:
+                # Only scale, if the low resolution image is actually downscaled.
+                thumbnail_rect.setRight(round(thumbnail_rect.right() * scaling_factor))
+                thumbnail_rect.setTop(round(thumbnail_rect.top() * scaling_factor))
+                thumbnail_rect.setLeft(round(thumbnail_rect.left() * scaling_factor))
+                thumbnail_rect.setBottom(round(thumbnail_rect.bottom() * scaling_factor))
+                logger.debug(f"Scaled source selection to {thumbnail_rect}")
+
+            return self.parent().low_resolution_image.copy(thumbnail_rect)
 
     @staticmethod
     def column_count() -> int:
