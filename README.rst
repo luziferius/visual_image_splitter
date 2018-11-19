@@ -40,12 +40,20 @@ Install
 
 Clone the repository using git or download a ZIP archive snapshot.
 Install the downloaded version from the source repository: **pip3 install .**
+Or use the program directly from the source checkout.
 
 
 Usage
 -----
 
 Execute *visual_image_splitter* to start the program and show the main window.
+
+Usage from the source tree without installing
++++++++++++++++++++++++++++++++++++++++++++++
+
+Visual Image Splitter can be launched from the source tree:
+Either use the runner script `visual_image_splitter-runner.py` or call the package using `python3 -m visual_image_splitter`.
+Both variants support command line arguments.
 
 
 Command line arguments
