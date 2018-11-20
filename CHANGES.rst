@@ -1,12 +1,19 @@
 Changelog
 =========
 
+Version 0.3.0 (20.11.2018)
+--------------------------
+
+- Implemented selection rendering in the right panel.
+- Improved internal code quality.
+
+
 Version 0.2.0 (17.10.2018)
 --------------------------
 
 - Implemented better image rendering for the opened images list.
   Images are now displayed as a list, keeping the aspect ratio of shown images.
-- Improved internal code quality
+- Improved internal code quality.
 
 
 Version 0.1.0 (02.10.2018)

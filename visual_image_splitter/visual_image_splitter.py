@@ -18,7 +18,7 @@ import visual_image_splitter.application
 
 # These constants are extracted by setup.py
 PROGRAMNAME = "visual_image_splitter"
-VERSION = "0.2.0"
+VERSION = "0.3.0"
 COPYRIGHT = "(C) 2018 Thomas Hess"
 AUTHOR = "Thomas Hess"
 AUTHOR_EMAIL = "thomas.hess@udo.edu"
