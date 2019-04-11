@@ -27,13 +27,12 @@ def get_logger(name: str) -> logging.Logger:
 
 def configure_root_logger(args):
     """Initialise logging system"""
-    logger = logging.getLogger()
-    logger.setLevel(1)
+    root_logger.setLevel(1)
     handler = logging.StreamHandler(sys.stdout)
     handler.setLevel(logging.DEBUG if args.verbose else logging.INFO)
     handler.setFormatter(logging.Formatter(LOG_FORMAT))
-    logger.addHandler(handler)
+    root_logger.addHandler(handler)
     if args.cutelog_integration:
         socket_handler = logging.handlers.SocketHandler("127.0.0.1", 19996)  # default listening address
-        logger.addHandler(socket_handler)
-        logger.info(f"""Connected logger "{logger.name}" to local log server.""")
+        root_logger.addHandler(socket_handler)
+        root_logger.info(f"""Connected logger "{root_logger.name}" to local log server.""")
