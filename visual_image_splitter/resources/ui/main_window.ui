@@ -183,12 +183,12 @@
   <customwidget>
    <class>OpenedImageListView</class>
    <extends>QListView</extends>
-   <header>visual_image_splitter.ui.image_list_view</header>
+   <header>visual_image_splitter.ui.list_views</header>
   </customwidget>
   <customwidget>
    <class>SelectionListView</class>
    <extends>QListView</extends>
-   <header>visual_image_splitter.ui.image_list_view</header>
+   <header>visual_image_splitter.ui.list_views</header>
   </customwidget>
  </customwidgets>
  <resources/>

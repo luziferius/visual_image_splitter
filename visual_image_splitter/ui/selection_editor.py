@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Thomas Hess <thomas.hess@udo.edu>
+# Copyright (C) 2018, 2019 Thomas Hess <thomas.hess@udo.edu>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -171,7 +171,7 @@ class SelectionEditor(QGraphicsView):
         super(SelectionEditor, self).__init__(parent)
 
     @pyqtSlot(QModelIndex, QModelIndex)
-    def on_image_selection_changed(self, current: QModelIndex, previous: QModelIndex):
+    def on_active_image_changed(self, current: QModelIndex, previous: QModelIndex):
         """
         Called, whenever the selected image changes.
         This happens, when the user clicks on an image in the opened images list to edit the selections.

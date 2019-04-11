@@ -13,14 +13,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+from PyQt5.QtCore import pyqtSlot, QModelIndex, QAbstractItemModel
 from PyQt5.QtWidgets import QListView, QWidget
 
 
+from visual_image_splitter.model.model import Model
 from .image_list_delegate import ImageListItemDelegate
 from .selection_list_delegate import SelectionListItemDelegate
 from ._logger import get_logger
 
-logger = get_logger("image_list_view")
+logger = get_logger("list_views")
 __all__ = ["OpenedImageListView", "SelectionListView"]
 
 
@@ -43,7 +45,32 @@ class SelectionListView(QListView):
         # from getting deleted by the garbage collector.
         self._delegate: SelectionListItemDelegate = SelectionListItemDelegate(self)
         self.setItemDelegate(self._delegate)
+        self._model: Model = None
         logger.info(f"Created {self.__class__.__name__} instance.")
 
+    def setModel(self, model: QAbstractItemModel):
+        self._model = model
+        super(SelectionListView, self).setModel(model)
 
+    @pyqtSlot(QModelIndex, QModelIndex)
+    def on_active_image_changed(self, current: QModelIndex, previous: QModelIndex):
+        """
+        This slot gets called, if the currently active image changes. The function updates the root index,
+        so that the list view shows the selections for the newly active image.
+        """
+        logger.debug(f"Selection changed. "
+                     f"current: isValid={current.isValid()}, column={current.column()}, row={current.row()}; "
+                     f"previous: isValid={previous.isValid()}, column={previous.column()}, row={previous.row()}")
+        # Be safe and map all indices to the first column.
+        if current.column():
+            current = current.sibling(current.row(), 0)
+        if self.model() is None:
+            super(SelectionListView, self).setModel(self._model)
+        if current.isValid():
+            super(SelectionListView, self).setRootIndex(current)
 
+    @pyqtSlot()
+    def clear_list(self):
+        """Temporarily remove the set model. This causes the view to clear. It is called, whenever there is no active
+        image. This happens, if the current image is closed or saved or if all images are saved."""
+        super(SelectionListView, self).setModel(None)

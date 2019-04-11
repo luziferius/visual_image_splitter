@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Thomas Hess <thomas.hess@udo.edu>
+# Copyright (C) 2018, 2019 Thomas Hess <thomas.hess@udo.edu>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ from PyQt5.QtWidgets import QWidget, QApplication
 
 from visual_image_splitter.ui.common import inherits_from_ui_file_with_name
 from visual_image_splitter.ui.selection_editor import SelectionEditor
-from visual_image_splitter.ui.image_list_view import OpenedImageListView, SelectionListView
+from visual_image_splitter.ui.list_views import OpenedImageListView, SelectionListView
 from visual_image_splitter.ui.open_images_dialog import OpenImagesDialog
 from ._logger import get_logger
 
@@ -42,12 +42,12 @@ class MainWindow(*inherits_from_ui_file_with_name("main_window")):
         self.opened_images_list_view.setModel(model)
         self.selection_list_view: SelectionListView
         self.selection_list_view.setModel(model)
-        self.selection_list_view.setRootIndex(QModelIndex())
+        self.selection_list_view.clear_list()
         self.opened_images_list_view.selectionModel().currentRowChanged.connect(
-            self.image_view.on_image_selection_changed
+            self.image_view.on_active_image_changed
         )
         self.opened_images_list_view.selectionModel().currentRowChanged.connect(
-            self._on_image_selection_change_update_selection_table
+            self.selection_list_view.on_active_image_changed
         )
         logger.info(f"Created {self.__class__.__name__} instance.")
         self._connect_model_signals(model)
@@ -55,20 +55,16 @@ class MainWindow(*inherits_from_ui_file_with_name("main_window")):
     def _connect_model_signals(self, model):
         """Connect all GUI actions with the model."""
         self.open_images.connect(model.open_images)
+        model.save_and_close_all_finished.connect(self.image_view.clear)
+        model.save_and_close_all_finished.connect(self.selection_list_view.clear_list)
         self.action_save_all.triggered.connect(model.save_and_close_all_images)
-        self.action_save_all.triggered.connect(self.image_view.clear)
+        self.action_save_current.triggered.connect(self.selection_list_view.clear_list)
+        self.action_save_current.triggered.connect(self.image_view.clear)
+        self.action_close_current.triggered.connect(self.selection_list_view.clear_list)
+        self.action_close_current.triggered.connect(self.image_view.clear)
         self.close_image.connect(model.close_image)
-        self.close_image.connect(self.image_view.clear)
-        logger.debug("Connected action signals with model signals")
 
-    @pyqtSlot(QModelIndex, QModelIndex)
-    def _on_image_selection_change_update_selection_table(self, current: QModelIndex, previous: QModelIndex):
-        logger.debug(f"Selection changed. "
-                     f"current: isValid={current.isValid()}, column={current.column()}, row={current.row()}; "
-                     f"previous: isValid={previous.isValid()}, column={previous.column()}, row={previous.row()}")
-        if current.column():
-            current = current.sibling(current.row(), 0)
-        self.selection_list_view.setRootIndex(current)
+        logger.debug("Connected action signals with model signals")
 
     def closeEvent(self, event: QCloseEvent):
         """
