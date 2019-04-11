@@ -1,6 +1,16 @@
 Changelog
 =========
 
+Version 0.3.1 (11.04.2019)
+--------------------------
+
+- Fixed GUI issues when opening images, if no other images are already opened.
+  Now the selection list panel on the right will stay empty and not display
+  garbage until an image is activated on the left.
+- Fixed GUI issues when all images are closed using the Save All button.
+  Now the selection editor and the selection list are properly emptied during the save operation.
+
+
 Version 0.3.0 (20.11.2018)
 --------------------------
 

@@ -79,7 +79,28 @@ Visual Image splitter accepts some command line switches:
 
 Command line examples
 +++++++++++++++++++++
-TODO.
+
+.. code-block:: console
+
+    # Just load two PNG files on start
+    visual_image_splitter a.png b.png
+    # Add a selection preset. In this case, it will add a selection
+    # to each loaded image that will simply crop the outer 10 pixels.
+    # Because no images are specified, no images are loaded on start.
+    # Use the GUI to open images.
+    visual_image_splitter --selection -10 -10 10 10
+    # Now, add a prefix that adds a fixed 50x100 pixel selection,
+    # starting relatively at 20% image width from the right and 40% from the top
+    # Additionally, open all PNG files in the current directory
+    visual_image_splitter -s -20% 40% +50 +100 *.png
+    # Take the bottom right 10% of each opened image.
+    # This starts at the bottom right corner and goes up and right for each 10%
+    # of the image width and height.
+    visual_image_splitter -s -0 -0 -10% -10%
+    # Or, alternatively:
+    visual_image_splitter -s 90% 90% 100% 100%
+    # Split each image (named Scan_some_number.tiff) into 4 equal parts
+    visual_image_splitter -s 0 0 50% 50% -s 0 50% 50% 100% -s 50% 0 100% 50% -s 50% 50% 100% 100% Scan_*.tiff
 
 
 User interface
