@@ -32,7 +32,7 @@
      </widget>
     </item>
     <item row="0" column="0">
-     <widget class="QListView" name="opened_images_list_view">
+     <widget class="OpenedImageListView" name="opened_images_list_view">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>5</horstretch>
@@ -51,7 +51,7 @@
      </widget>
     </item>
     <item row="0" column="2">
-     <widget class="QListView" name="selection_list_view">
+     <widget class="SelectionListView" name="selection_list_view">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>5</horstretch>
@@ -179,6 +179,16 @@
    <class>SelectionEditor</class>
    <extends>QGraphicsView</extends>
    <header>visual_image_splitter.ui.selection_editor</header>
+  </customwidget>
+  <customwidget>
+   <class>OpenedImageListView</class>
+   <extends>QListView</extends>
+   <header>visual_image_splitter.ui.image_list_view</header>
+  </customwidget>
+  <customwidget>
+   <class>SelectionListView</class>
+   <extends>QListView</extends>
+   <header>visual_image_splitter.ui.image_list_view</header>
   </customwidget>
  </customwidgets>
  <resources/>

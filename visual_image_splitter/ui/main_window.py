@@ -16,13 +16,12 @@
 
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QModelIndex
 from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtWidgets import QWidget, QApplication, QTableView, QListView
+from PyQt5.QtWidgets import QWidget, QApplication
 
 from visual_image_splitter.ui.common import inherits_from_ui_file_with_name
 from visual_image_splitter.ui.selection_editor import SelectionEditor
+from visual_image_splitter.ui.image_list_view import OpenedImageListView, SelectionListView
 from visual_image_splitter.ui.open_images_dialog import OpenImagesDialog
-from visual_image_splitter.ui.image_list_delegate import ImageListItemDelegate
-from visual_image_splitter.ui.selection_list_delegate import SelectionListItemDelegate
 from ._logger import get_logger
 
 logger = get_logger("main_window")
@@ -39,20 +38,18 @@ class MainWindow(*inherits_from_ui_file_with_name("main_window")):
         self.setupUi(self)
         self.dirty: bool = False
         self.image_view: SelectionEditor
-        self.opened_images_list_view: QListView
+        self.opened_images_list_view: OpenedImageListView
         self.opened_images_list_view.setModel(model)
-        # Qt Views do not take ownership of delegates. Keep the reference to prevent Python from garbage-collecting it.
-        self.image_view_delegate = ImageListItemDelegate(self)
-        self.opened_images_list_view.setItemDelegate(self.image_view_delegate)
-        self.selection_list_view: QListView
+        self.selection_list_view: SelectionListView
         self.selection_list_view.setModel(model)
         self.selection_list_view.setRootIndex(QModelIndex())
-        self.selection_viev_delegate = SelectionListItemDelegate(self)
-        self.selection_list_view.setItemDelegate(self.selection_viev_delegate)
+        self.opened_images_list_view.selectionModel().currentRowChanged.connect(
+            self.image_view.on_image_selection_changed
+        )
         self.opened_images_list_view.selectionModel().currentRowChanged.connect(
             self._on_image_selection_change_update_selection_table
         )
-        logger.info("Created main window instance")
+        logger.info(f"Created {self.__class__.__name__} instance.")
         self._connect_model_signals(model)
 
     def _connect_model_signals(self, model):
@@ -72,7 +69,6 @@ class MainWindow(*inherits_from_ui_file_with_name("main_window")):
         if current.column():
             current = current.sibling(current.row(), 0)
         self.selection_list_view.setRootIndex(current)
-        self.image_view.on_image_selection_changed(current, previous)
 
     def closeEvent(self, event: QCloseEvent):
         """

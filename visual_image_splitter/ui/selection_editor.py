@@ -170,6 +170,7 @@ class SelectionEditor(QGraphicsView):
     def __init__(self, parent: QWidget=None):
         super(SelectionEditor, self).__init__(parent)
 
+    @pyqtSlot(QModelIndex, QModelIndex)
     def on_image_selection_changed(self, current: QModelIndex, previous: QModelIndex):
         """
         Called, whenever the selected image changes.
