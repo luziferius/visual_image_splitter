@@ -40,6 +40,7 @@ class Model(QAbstractItemModel):
     open_images = pyqtSignal(list)
     save_and_close_all_images = pyqtSignal()
     close_image = pyqtSignal(QModelIndex, bool)  # boolean parameter: True: save selections to files, False: discard
+    save_and_close_all_finished = pyqtSignal()
 
     def __init__(self, args, parent: QObject=None):
         """
@@ -141,12 +142,13 @@ class Model(QAbstractItemModel):
         Save and close all images. This writes all selections to separate files, then closes all files.
         """
         logger.info("Writing all selections and closing all opened image files.")
-        self.beginRemoveRows(QModelIndex(), 0, self.rowCount()-1)
-        for image in self.images:
+        for index, image in enumerate(self.images):
             logger.debug(f"Writing output files for {image}")
+            self.beginRemoveRows(QModelIndex(), index, index)
             image.write_output()
+            self.endRemoveRows()
         self.images.clear()
-        self.endRemoveRows()
+        self.save_and_close_all_finished.emit()
 
     def _close_image(self, model_index: QModelIndex, save_selections: bool=True):
         """
