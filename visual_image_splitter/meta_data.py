@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Thomas Hess <thomas.hess@udo.edu>
+# Copyright (C) 2019 Thomas Hess <thomas.hess@udo.edu>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,13 +13,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import logging
-import visual_image_splitter.logger as logger
 
-__all__ = ["logger", "get_logger"]
-
-logger: logging.Logger = logger.root_logger.getChild("model")
-
-
-def get_logger(name: str) -> logging.Logger:
-    return logger.getChild(name)
+# These constants are extracted by setup.py
+PROGRAMNAME = "visual_image_splitter"
+VERSION = "0.3.0"
+COPYRIGHT = "(C) 2018 Thomas Hess"
+AUTHOR = "Thomas Hess"
+AUTHOR_EMAIL = "thomas.hess@udo.edu"
+MAINTAINER = "Thomas Hess"
+MAINTAINER_EMAIL = "thomas.hess@udo.edu"
+HOME_PAGE = "https://github.com/luziferius/visual_image_splitter"

@@ -16,15 +16,6 @@
 
 import visual_image_splitter.application
 
-# These constants are extracted by setup.py
-PROGRAMNAME = "visual_image_splitter"
-VERSION = "0.3.0"
-COPYRIGHT = "(C) 2018 Thomas Hess"
-AUTHOR = "Thomas Hess"
-AUTHOR_EMAIL = "thomas.hess@udo.edu"
-MAINTAINER = "Thomas Hess"
-MAINTAINER_EMAIL = "thomas.hess@udo.edu"
-HOME_PAGE = "https://github.com/luziferius/visual_image_splitter"
 
 # Workaround that puts the Application instance into the module scope. This prevents issues with the garbage collector
 # when main() is left. Without, the Python GC interferes with Qt’s memory management and may cause segmentation faults

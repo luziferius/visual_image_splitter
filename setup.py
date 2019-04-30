@@ -27,7 +27,7 @@ MetaData = collections.namedtuple(
 
 
 def extract_metadata() -> MetaData:
-    source_file_path = Path(__file__).parent / "visual_image_splitter" / "visual_image_splitter.py"
+    source_file_path = Path(__file__).parent / "visual_image_splitter" / "meta_data.py"
     with open(source_file_path, "r") as data_source_file:
         source = data_source_file.read()
     if not source:

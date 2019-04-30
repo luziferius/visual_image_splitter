@@ -17,6 +17,8 @@ import logging
 import logging.handlers
 import sys
 
+from visual_image_splitter.argument_parser import Namespace
+
 root_logger = logging.getLogger("visual_image_splitter")
 LOG_FORMAT = "%(asctime)s %(levelname)s - %(name)s - %(message)s"
 
@@ -25,7 +27,7 @@ def get_logger(name: str) -> logging.Logger:
     return root_logger.getChild(name)
 
 
-def configure_root_logger(args):
+def configure_root_logger(args: Namespace):
     """Initialise logging system"""
     root_logger.setLevel(1)
     handler = logging.StreamHandler(sys.stdout)

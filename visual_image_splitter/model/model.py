@@ -18,6 +18,7 @@ import pathlib
 
 from PyQt5.QtCore import QObject, QAbstractItemModel, QModelIndex, QVariant, Qt, QThread, pyqtSignal, QTimer
 
+from visual_image_splitter.argument_parser import Namespace
 from visual_image_splitter.model.selection_preset import SelectionPreset
 from .selection import Selection
 from .image import Image, Columns as ImageColums
@@ -42,14 +43,14 @@ class Model(QAbstractItemModel):
     close_image = pyqtSignal(QModelIndex, bool)  # boolean parameter: True: save selections to files, False: discard
     save_and_close_all_finished = pyqtSignal()
 
-    def __init__(self, args, parent: QObject=None):
+    def __init__(self, args: Namespace, parent: QObject=None):
         """
 
         :param args: Parsed command line arguments. Expects an argparse.Namespace object
         :param parent: Optional parent object
         """
         super(Model, self).__init__(parent)
-        self.args = args
+        self.args: Namespace = args
         logger.info(f"Creating Model instance. Arguments: {args}")
         self.worker, self.worker_thread = self._setup_worker_thread()
 

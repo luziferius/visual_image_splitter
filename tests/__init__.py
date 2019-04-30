@@ -13,8 +13,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import visual_image_splitter.logger as logger
 from collections import namedtuple
-logger.configure_root_logger(namedtuple("Namespace", ["cutelog_integration", "verbose"])(True, False))
+
+import visual_image_splitter.logger as logger
+
+logger.configure_root_logger(
+    namedtuple("Namespace", ["cutelog_integration", "verbose"])(True, False)
+)
 
 del logger, namedtuple

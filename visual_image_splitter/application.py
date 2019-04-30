@@ -19,7 +19,7 @@ import typing
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QApplication
 
-from visual_image_splitter.argument_parser import parse_arguments
+from visual_image_splitter.argument_parser import parse_arguments, Namespace
 import visual_image_splitter.logger
 import visual_image_splitter.ui.main_window
 import visual_image_splitter.model.model
@@ -32,7 +32,7 @@ class Application(QApplication):
     def __init__(self, argv: typing.List[str]=sys.argv):
 
         super(Application, self).__init__(argv)
-        self.args = parse_arguments()
+        self.args: Namespace = parse_arguments()
         visual_image_splitter.logger.configure_root_logger(self.args)
         logger.info("Starting visual_image_splitter")
         self.model: visual_image_splitter.model.model.Model = visual_image_splitter.model.model.Model(self.args, self)
