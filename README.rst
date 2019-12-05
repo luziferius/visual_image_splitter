@@ -23,7 +23,7 @@ Requirements
 - Python 3.6
 - PyQt5
     - Requires the PyQt5 SVG module, if it is not already bundled with your PyQt5 install. (On Ubuntu, this is in a separate package.)
-    - Requires the *pyrcc5* command line PyQt5 resource compiler during the installation process.
+    - Requires the ``pyrcc5`` command line PyQt5 resource compiler during the installation process.
 
 
 Ubuntu
@@ -31,7 +31,7 @@ Ubuntu
 
 Install all dependencies using this command:
 
-    sudo apt install python3-pyqt5 python3-pyqt5.qtsvg pyqt5-dev-tools
+    ``sudo apt install python3-pyqt5 python3-pyqt5.qtsvg pyqt5-dev-tools``
 
 
 
@@ -39,20 +39,20 @@ Installation
 ------------
 
 Clone the repository using git or download a ZIP archive snapshot from the GitHub releases page.
-Install the downloaded version from the source repository: **pip3 install .**
+Install the downloaded version from the source repository root directory using: :code:`pip3 install .` (Note the trailing dot indicating the path to the repository checkout.)
 Alternatively, use the program directly from the source checkout without an installation.
 
 
 Usage
 -----
 
-Execute *visual_image_splitter* to start the program and show the main window.
+Execute ``visual_image_splitter`` to start the program and show the main window.
 
 Execution from the source tree without installing
 +++++++++++++++++++++++++++++++++++++++++++++++++
 
 Visual Image Splitter can be launched from the source tree:
-Either use the runner script *visual_image_splitter-runner.py* in the repository root directory or execute the Python source package using *python3 -m visual_image_splitter*.
+Either use the runner script :code:`visual_image_splitter-runner.py` in the repository root directory or execute the Python source package using :code:`python3 -m visual_image_splitter`.
 Both variants support command line arguments, like the installed version.
 
 
@@ -61,16 +61,16 @@ Command line arguments
 
 Visual Image splitter accepts some command line switches:
 
-- `-s`, `--selection`: Adds a selection preset to all image files loaded. This argument can be specified more than once to add multiple selection presets.
-    - This switch takes exactly four numerical arguments (optional parts in square brackets): [-]x1[%] [-]y1[%] [+-]x2[%] [+-]y2[%]
+- ``-s``, ``--selection``: Adds a selection preset to all image files loaded. This argument can be specified more than once to add multiple selection presets.
+    - This switch takes exactly four numerical arguments (optional parts in square brackets): ``[-]x1[%] [-]y1[%] [+-]x2[%] [+-]y2[%]``
     - The given presets will be added as selections to *each* opened file, both to image specified on the command line *and* any image opened later.
     - If any argument value is specified with a percent sign, it is treated as a decimal percentage of the actual image size it will be applied to.
-    - The first value pair, x1 and y1, build the first anchor point. Values are relative to the top and left image border. If a value is negative, it is treated as relative to the right and bottom image border.
-    - The second value pair, x2 and y2 form the second anchor point. If a sign is given (either positive or negative), the value is treated as relative to the `first anchor point`.
-- `-h`, `--help`: Print the help text on the standard output
-- `-v`, `--version`: Print the application version on the standard output
-- `-V`, `--verbose`: Increase log output verbosity on the standard output
-- `--cutelog-integration`: Enable logging to a local network socket for external log viewing. See https://github.com/busimus/cutelog
+    - The first value pair, ``x1`` and ``y1``, build the first anchor point. Values are relative to the top and left image border. If a value is negative, it is treated as relative to the right and bottom image border.
+    - The second value pair, ``x2`` and ``y2`` form the second anchor point. If a sign is given (either positive or negative), the value is treated as relative to the `first anchor point`.
+- ``-h``, ``--help``: Print the help text on the standard output
+- ``-v``, ``--version``: Print the application version on the standard output
+- ``-V``, ``--verbose``: Increase log output verbosity on the standard output
+- ``--cutelog-integration``: Enable logging to a local network socket for external log viewing. See https://github.com/busimus/cutelog
 - List of image files
     - visual_image_splitter accepts a list of image files as positional arguments. These image files will be loaded on program start.
     - The file types supported depend on the Qt library version currently in use and any file type plugin libraries accessible to Qt.
