@@ -14,7 +14,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 from PyQt5 import QtGui
-from PyQt5.QtCore import Qt, QRectF, QRect
+from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtWidgets import QStyledItemDelegate, QStyleOptionViewItem, QStyle
 
 

@@ -15,12 +15,13 @@
 
 import typing
 
-from ._logger import get_logger
 from visual_image_splitter.model.image import Image
 from visual_image_splitter.model.point import Point
 from visual_image_splitter.model.selection import Selection
 
-logger = get_logger("SelectionPreset")
+from visual_image_splitter.logger import get_logger
+logger = get_logger(__name__)
+del get_logger
 
 
 class SelectionPreset(typing.NamedTuple):

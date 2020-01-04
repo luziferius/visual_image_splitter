@@ -15,9 +15,9 @@
 
 from PyQt5 import QtWidgets
 
-from ._logger import get_logger
-
-logger = get_logger("choose_out_dir_dialog")
+from visual_image_splitter.logger import get_logger
+logger = get_logger(__name__)
+del get_logger
 
 
 class OutputDirDialog(QtWidgets.QFileDialog):
@@ -25,7 +25,7 @@ class OutputDirDialog(QtWidgets.QFileDialog):
     This Dialog is used to choose an output directory to write files to.
     """
 
-    def __init__(self, parent: QtWidgets.QWidget=None):
+    def __init__(self, parent: QtWidgets.QWidget = None):
         super(OutputDirDialog, self).__init__(parent, "Choose output directory")
         self.setFileMode(QtWidgets.QFileDialog.DirectoryOnly)  # Only allow directory selection.
         logger.info("Created OutputDirDialog instance.")

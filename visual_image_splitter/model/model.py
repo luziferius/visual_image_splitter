@@ -21,11 +21,12 @@ from PyQt5.QtCore import QObject, QAbstractItemModel, QModelIndex, QVariant, Qt,
 from visual_image_splitter.argument_parser import Namespace
 from visual_image_splitter.model.selection_preset import SelectionPreset
 from .selection import Selection
-from .image import Image, Columns as ImageColums
-from ._logger import get_logger
+from .image import Image, Columns as ImageColumns
 from .async_io import ModelWorker
 
-logger = get_logger("model")
+from visual_image_splitter.logger import get_logger
+logger = get_logger(__name__)
+del get_logger
 
 
 class Model(QAbstractItemModel):
@@ -43,7 +44,7 @@ class Model(QAbstractItemModel):
     close_image = pyqtSignal(QModelIndex, bool)  # boolean parameter: True: save selections to files, False: discard
     save_and_close_all_finished = pyqtSignal()
 
-    def __init__(self, args: Namespace, parent: QObject=None):
+    def __init__(self, args: Namespace, parent: QObject = None):
         """
 
         :param args: Parsed command line arguments. Expects an argparse.Namespace object
@@ -151,7 +152,7 @@ class Model(QAbstractItemModel):
         self.images.clear()
         self.save_and_close_all_finished.emit()
 
-    def _close_image(self, model_index: QModelIndex, save_selections: bool=True):
+    def _close_image(self, model_index: QModelIndex, save_selections: bool = True):
         """
         Optionally save and then close a single image file.
         :param model_index: QModelIndex pointing to an Image instance.
@@ -210,7 +211,7 @@ class Model(QAbstractItemModel):
             # Image instances have this as a parent, thus it is a top level access. Thus, there is no parent
             return QModelIndex()
         else:
-            return self.createIndex(parent.row(), ImageColums.IMAGE, parent)
+            return self.createIndex(parent.row(), ImageColumns.IMAGE, parent)
 
     def data(self, index: QModelIndex, role: int = Qt.DisplayRole) -> QVariant:
         if not index.isValid():
@@ -228,10 +229,10 @@ class Model(QAbstractItemModel):
         based on nesting depth / model indices.
         """
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
-            if section == ImageColums.IMAGE:
+            if section == ImageColumns.IMAGE:
                 return "Image"
-            elif section == ImageColums.IMAGE_PATH:
+            elif section == ImageColumns.IMAGE_PATH:
                 return "Image path"
-            elif section == ImageColums.OUTPUT_PATH:
+            elif section == ImageColumns.OUTPUT_PATH:
                 return "Output path"
         return QVariant()

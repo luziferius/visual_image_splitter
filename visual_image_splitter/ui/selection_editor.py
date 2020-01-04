@@ -24,9 +24,12 @@ from PyQt5.QtGui import QPixmap, QPen, QColor, QBrush
 from visual_image_splitter.model.selection import Selection
 from visual_image_splitter.model.point import Point
 
-from ._logger import get_logger
-logger = get_logger("selection_editor")
-scene_logger = get_logger("selection_scene")
+from visual_image_splitter.logger import get_logger
+module_logger = get_logger(__name__)
+del get_logger
+
+editor_logger = module_logger.getChild("selection_editor")
+scene_logger = module_logger.getChild("selection_scene")
 
 
 class EditorMode(enum.Enum):
@@ -38,7 +41,7 @@ class SelectionScene(QGraphicsScene):
 
     selection_drawing_finished = pyqtSignal(QRectF)
 
-    def __init__(self, scene_rect: QRectF, parent: QObject=None):
+    def __init__(self, scene_rect: QRectF, parent: QObject = None):
         super(SelectionScene, self).__init__(scene_rect, parent)
         rectangle_color = QColor(Qt.red)
         self.default_border_pen = QPen(Qt.red, 3, Qt.SolidLine, Qt.SquareCap, Qt.MiterJoin)
@@ -119,7 +122,7 @@ class SelectionScene(QGraphicsScene):
         selections: typing.List[Selection] = [
             current_first_column.child(index, 0).data(Qt.UserRole) for index in range(selection_count)
         ]
-        logger.debug(f"Loading selection list: {selections}")
+        editor_logger.debug(f"Loading selection list: {selections}")
         for selection in selections:
             self._draw_rectangle(current, selection)
 
@@ -167,7 +170,7 @@ class SelectionScene(QGraphicsScene):
 
 class SelectionEditor(QGraphicsView):
 
-    def __init__(self, parent: QWidget=None):
+    def __init__(self, parent: QWidget = None):
         super(SelectionEditor, self).__init__(parent)
 
     @pyqtSlot(QModelIndex, QModelIndex)
@@ -176,22 +179,21 @@ class SelectionEditor(QGraphicsView):
         Called, whenever the selected image changes.
         This happens, when the user clicks on an image in the opened images list to edit the selections.
         """
-        del previous  # Currently not used signal parameter.
         if current.isValid():
             data = current.data(Qt.BackgroundRole)
             if data is not None:
                 self.load_image(data)
                 self.load_selections(current)
             else:
-                logger.info(f"Invalid index {current}. row={current.row()}, column={current.column()}")
+                editor_logger.info(f"Invalid index {current}. row={current.row()}, column={current.column()}")
         else:
-            logger.debug("Selection changed to an invalid index. Clearing scene.")
+            editor_logger.debug("Selection changed to an invalid index. Clearing scene.")
             self.clear()
 
     def load_image(self, image: QPixmap):
         new_scene = SelectionScene(QRectF(image.rect()), parent=self)
         new_scene.addPixmap(image)
-        logger.info(f"Loaded scene: image-dimensions={image.rect().width(), image.rect().height()}")
+        editor_logger.info(f"Loaded scene: image-dimensions={image.rect().width(), image.rect().height()}")
         self._replace_scene(new_scene)
         new_scene.selection_drawing_finished.connect(self.on_selection_drawing_finished)
 
@@ -199,12 +201,12 @@ class SelectionEditor(QGraphicsView):
         image_index: QModelIndex = QApplication.instance().get_currently_edited_image()
         model = QApplication.instance().model
         model.add_selection(image_index, self._from_local_coordinates(image_index, local_rectangle))
-        logger.info(f"Selection drawing finished: width={local_rectangle.width()}, height={local_rectangle.height()}")
+        editor_logger.info(f"Selection drawing finished: width={local_rectangle.width()}, height={local_rectangle.height()}")
 
     @pyqtSlot()
     def clear(self):
         self._replace_scene(QGraphicsScene(self))
-        logger.info("Cleared currently opened scene")
+        editor_logger.info("Cleared currently opened scene")
 
     def _replace_scene(self, new_scene: QGraphicsScene):
         # TODO: Must the old scene be destroyed manually or is this ok? Then this setter can be removed

@@ -15,8 +15,8 @@
 
 
 from PyQt5 import QtGui
-from PyQt5.QtCore import Qt, QObject, QModelIndex, QAbstractItemModel, pyqtSlot, QSize, QRectF, QRect
-from PyQt5.QtWidgets import QWidget, QPushButton, QStyledItemDelegate, QStyleOptionViewItem, QLineEdit, QStyle
+from PyQt5.QtCore import Qt, QModelIndex, QAbstractItemModel, QSize, QRect
+from PyQt5.QtWidgets import QWidget, QStyleOptionViewItem
 
 from visual_image_splitter.model.selection import Selection
 from .custom_image_delegate_base import CustomItemDelegateBase

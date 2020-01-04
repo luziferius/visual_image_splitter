@@ -22,9 +22,9 @@ from visual_image_splitter.ui.common import inherits_from_ui_file_with_name
 from visual_image_splitter.ui.selection_editor import SelectionEditor
 from visual_image_splitter.ui.list_views import OpenedImageListView, SelectionListView
 from visual_image_splitter.ui.open_images_dialog import OpenImagesDialog
-from ._logger import get_logger
-
-logger = get_logger("main_window")
+from visual_image_splitter.logger import get_logger
+logger = get_logger(__name__)
+del get_logger
 
 
 class MainWindow(*inherits_from_ui_file_with_name("main_window")):
@@ -33,7 +33,7 @@ class MainWindow(*inherits_from_ui_file_with_name("main_window")):
     open_images = pyqtSignal(list)
     close_image = pyqtSignal(QModelIndex, bool)
 
-    def __init__(self, model, parent: QWidget=None):
+    def __init__(self, model, parent: QWidget = None):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
         self.dirty: bool = False

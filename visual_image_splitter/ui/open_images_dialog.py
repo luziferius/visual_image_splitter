@@ -19,9 +19,9 @@ import typing
 from PyQt5.QtGui import QImageReader, QImageWriter
 from PyQt5.QtWidgets import QFileDialog, QWidget
 
-from ._logger import get_logger
-
-logger = get_logger("open_files_dialog")
+from visual_image_splitter.logger import get_logger
+logger = get_logger(__name__)
+del get_logger
 
 
 class OpenImagesDialog(QFileDialog):
@@ -29,7 +29,7 @@ class OpenImagesDialog(QFileDialog):
     This Dialog is used to open and load new image files.
     """
 
-    def __init__(self, parent: QWidget=None):
+    def __init__(self, parent: QWidget = None):
         super(OpenImagesDialog, self).__init__(
             parent,
             "Open Image files",

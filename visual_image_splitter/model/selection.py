@@ -21,12 +21,13 @@ from PyQt5.QtCore import QRect, QPoint, QSize, QRectF, QVariant, Qt
 from PyQt5.QtGui import QPixmap
 
 from .point import Point
-from ._logger import get_logger
 
 if typing.TYPE_CHECKING:
     from .image import Image
 
-logger = get_logger("Selection")
+from visual_image_splitter.logger import get_logger
+logger = get_logger(__name__)
+del get_logger
 
 
 @enum.unique
@@ -109,7 +110,7 @@ class Selection:
         else:
             return self.parent().selections.index(self)
 
-    def data(self, column: int, role: int=Qt.DisplayRole) -> QVariant:
+    def data(self, column: int, role: int = Qt.DisplayRole) -> QVariant:
         """Qt Model function. Returns the own data using the Qt Model API"""
         if column not in range(0, Selection.QT_COLUMN_COUNT):
             # Short-cut invalid columns now
@@ -146,7 +147,6 @@ class Selection:
         Part of the tree model. Keeps the API stable for mixed types. Selection never has children.
         row_count() always returns zero, so this function should never be called by Qt model views.
         """
-        del row   # No unused parameter…
         return None
 
     def parent(self):

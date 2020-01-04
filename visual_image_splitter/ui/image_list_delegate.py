@@ -30,11 +30,11 @@ class ImageListItemEditor(*inherits_from_ui_file_with_name("image_list_item_edit
     This widget implements an Item editor for the opened image view. It is shown by the view class
     whenever item editing is requested. (Usually by double-clicking an item in the view or any other edit trigger).
     """
-    def __init__(self, parent: QWidget=None):
+    def __init__(self, parent: QWidget = None):
         super(ImageListItemEditor, self).__init__(parent)
         self.setupUi()
-        self.output_path: Path = None
-        self.input_file_path: Path = None
+        self.output_path: Path = Path()
+        self.input_file_path: Path = Path()
         self.output_path_chooser = OutputDirDialog(self)
         self.output_path_chooser_button: QPushButton
         self.output_path_chooser_button.clicked.connect(self.on_show_directory_chooser)
@@ -63,10 +63,10 @@ class ImageListItemEditor(*inherits_from_ui_file_with_name("image_list_item_edit
 
 class ImageListItemDelegate(CustomItemDelegateBase):
 
-    def __init__(self, parent: QObject=None):
+    def __init__(self, parent: QObject = None):
         super(ImageListItemDelegate, self).__init__(parent)
 
-    def createEditor(self, parent: QWidget, option: QStyleOptionViewItem, index: QModelIndex)-> ImageListItemEditor:
+    def createEditor(self, parent: QWidget, option: QStyleOptionViewItem, index: QModelIndex) -> ImageListItemEditor:
         return ImageListItemEditor(parent)
 
     def paint(self, painter: QtGui.QPainter, option: QStyleOptionViewItem, index: QModelIndex):

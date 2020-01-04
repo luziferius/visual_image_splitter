@@ -18,9 +18,9 @@ import pathlib
 
 from PyQt5.QtCore import QObject, pyqtSlot, QModelIndex
 
-from ._logger import get_logger
-
-logger = get_logger("AsyncModelWorker")
+from visual_image_splitter.logger import get_logger
+logger = get_logger(__name__)
+del get_logger
 
 
 class ModelWorker(QObject):
@@ -30,7 +30,7 @@ class ModelWorker(QObject):
     to perform those long running operations in the background.
     """
 
-    def __init__(self, model, parent: QObject=None):
+    def __init__(self, model, parent: QObject = None):
         super(ModelWorker, self).__init__(parent)
         self.model = model
         logger.info("Created ModelWorker instance for asynchronous file operations.")

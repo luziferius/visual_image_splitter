@@ -20,15 +20,15 @@ from PyQt5.QtWidgets import QListView, QWidget
 from visual_image_splitter.model.model import Model
 from .image_list_delegate import ImageListItemDelegate
 from .selection_list_delegate import SelectionListItemDelegate
-from ._logger import get_logger
-
-logger = get_logger("list_views")
+from visual_image_splitter.logger import get_logger
+logger = get_logger(__name__)
+del get_logger
 __all__ = ["OpenedImageListView", "SelectionListView"]
 
 
 class OpenedImageListView(QListView):
 
-    def __init__(self, parent: QWidget=None):
+    def __init__(self, parent: QWidget = None):
         super(OpenedImageListView, self).__init__(parent)
         # QListView.setItemDelegate does not take the object ownership. Save it as a class attribute to prevent it
         # from getting deleted by the garbage collector.
@@ -39,7 +39,7 @@ class OpenedImageListView(QListView):
 
 class SelectionListView(QListView):
 
-    def __init__(self, parent: QWidget=None):
+    def __init__(self, parent: QWidget = None):
         super(SelectionListView, self).__init__(parent)
         # QListView.setItemDelegate does not take the object ownership. Save it as a class attribute to prevent it
         # from getting deleted by the garbage collector.

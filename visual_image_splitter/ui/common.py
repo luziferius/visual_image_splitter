@@ -22,8 +22,9 @@ from PyQt5.QtWidgets import QLabel
 from PyQt5 import uic
 from PyQt5.QtSvg import QSvgRenderer
 
-from ._logger import get_logger
-logger = get_logger("common")
+from visual_image_splitter.logger import get_logger
+logger = get_logger(__name__)
+del get_logger
 
 try:
     import visual_image_splitter.ui.compiled_resources
@@ -51,7 +52,7 @@ else:
     atexit.register(visual_image_splitter.ui.compiled_resources.qCleanupResources)
 
 
-def set_url_label(label: QLabel, path: pathlib.Path, display_text: str=None):
+def set_url_label(label: QLabel, path: pathlib.Path, display_text: str = None):
 
     url = QUrl.fromLocalFile(str(path.expanduser()))
     if not label.openExternalLinks():

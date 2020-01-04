@@ -29,8 +29,9 @@ logger = visual_image_splitter.logger.get_logger("Application")
 
 class Application(QApplication):
 
-    def __init__(self, argv: typing.List[str]=sys.argv):
-
+    def __init__(self, argv: typing.List[str] = None):
+        if argv is None:
+            argv = sys.argv
         super(Application, self).__init__(argv)
         self.args: Namespace = parse_arguments()
         visual_image_splitter.logger.configure_root_logger(self.args)

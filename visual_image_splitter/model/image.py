@@ -22,12 +22,13 @@ from PyQt5.QtGui import QImage, QImageReader, QImageWriter, QPixmap
 from PyQt5.QtWidgets import QApplication
 
 from .selection import Selection
-from ._logger import get_logger
 
 if typing.TYPE_CHECKING:
     from .model import Model
 
-logger = get_logger("Image")
+from visual_image_splitter.logger import get_logger
+logger = get_logger(__name__)
+del get_logger
 
 
 @enum.unique
@@ -43,15 +44,15 @@ class Image(QObject):
 
     QT_COLUMN_COUNT = 3  # Number of columns. Used in the Qt Model API.
 
-    def __init__(self, source_file: Path, parent: QObject=None):
+    def __init__(self, source_file: Path, parent: QObject = None):
         super(Image, self).__init__(parent)
         self.image_path: Path = source_file.expanduser()
         self.selections: typing.List[Selection] = []
-        self.low_resolution_image: QPixmap = None
+        self.low_resolution_image: typing.Optional[QPixmap] = None
         self.output_path: Path = source_file.parent
-        self.image_data: QImage = None
-        self._width: int = None
-        self._height: int = None
+        self.image_data: QImage = None  # Will be overwritten. load_image_data() raises an Error, if the loading fails
+        self._width: int = 0
+        self._height: int = 0
         self.load_meta_data()
         logger.info(f"Created Image instance with source file: {source_file}")
 
@@ -83,7 +84,7 @@ class Image(QObject):
         """Number of Qt TreeModel columns. This contains the image data, image path and the output path."""
         return len(Columns)
 
-    def data(self, column: int, role: int=Qt.DisplayRole) -> QVariant:
+    def data(self, column: int, role: int = Qt.DisplayRole) -> QVariant:
         """Qt Model function. Returns the own data using the Qt model API"""
         if column not in range(0, Selection.QT_COLUMN_COUNT):
             # Short-cut invalid columns now
@@ -221,7 +222,7 @@ class Image(QObject):
         path = self.output_path / f"{self.image_path.stem}_{selection_index:05}{self.image_path.suffix}"
         return str(path)
 
-    def _scaled_to_resolution(self, maximum: int=1000) -> typing.Tuple[float, float]:
+    def _scaled_to_resolution(self, maximum: int = 1000) -> typing.Tuple[float, float]:
         scaling_factor = maximum / max(self.width, self.height)
         if scaling_factor > 1:
             return self.width, self.height
