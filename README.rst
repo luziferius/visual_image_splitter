@@ -64,7 +64,7 @@ Visual Image splitter accepts some command line switches:
 - ``-s``, ``--selection``: Adds a selection preset to all image files loaded. This argument can be specified more than once to add multiple selection presets.
     - This switch takes exactly four numerical arguments (optional parts in square brackets): ``[-]x1[%] [-]y1[%] [+-]x2[%] [+-]y2[%]``
     - The given presets will be added as selections to *each* opened file, both to image specified on the command line *and* any image opened later.
-    - If any argument value is specified with a percent sign, it is treated as a decimal percentage of the actual image size it will be applied to.
+    - If any argument value is specified with a percent sign, it is treated as a decimal percentage of the actual image size it will be applied to. Otherwise, without a percent sign, it denotes an absolute value in pixels.
     - The first value pair, ``x1`` and ``y1``, build the first anchor point. Values are relative to the top and left image border. If a value is negative, it is treated as relative to the right and bottom image border.
     - The second value pair, ``x2`` and ``y2`` form the second anchor point. If a sign is given (either positive or negative), the value is treated as relative to the `first anchor point`.
 - ``-h``, ``--help``: Print the help text on the standard output
@@ -89,7 +89,7 @@ Command line examples
     # Because no images are specified, no images are loaded on start.
     # Use the GUI to open images.
     visual_image_splitter --selection -10 -10 10 10
-    # Now, add a prefix that adds a fixed 50x100 pixel selection,
+    # Now, add a preset that adds a fixed 50x100 pixel selection,
     # starting relatively at 20% image width from the right and 40% from the top
     # Additionally, open all PNG files in the current directory
     visual_image_splitter -s -20% 40% +50 +100 *.png
