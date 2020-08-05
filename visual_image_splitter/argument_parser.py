@@ -32,7 +32,7 @@ def generate_argument_parser() -> argparse.ArgumentParser:
     description = "This program takes pictures and cuts them into pieces. It can be used to split scanned images " \
                   "containing multiple images into the individual parts."
     epilog = "Long arguments can be abbreviated, as long as the abbreviation is unambiguous. Don’t use this feature " \
-             "in scripts, because newly argument switches might break previously valid abbreviations. Arguments can " \
+             "in scripts, because newly added argument switches might break previously valid abbreviations. Arguments can " \
              "be loaded from files using the @-Notation. Use \"@/path/to/file\" to load arguments from the specified " \
              "file. The file must contain one argument per line. It may be useful to load a set of selections from a " \
              "file instead of typing it on the command line, when you can re-use the same set of selections multiple " \
@@ -54,14 +54,15 @@ def generate_argument_parser() -> argparse.ArgumentParser:
         default=[],
         # metavar=("[-]x1[%]", "[-]y1[%]", "[+|-]x2[%]", "[+|-]y2[%]"),  # TODO: This crashes the argument parser?
         metavar=("x1[%]", "y1[%]", "x2[%]", "y2[%]"),
-        help="Can be specified multiple times. "
-             "Specify one or more selection presets that will be applied to each image loaded. "
-             "The first two values specify the selection anchor point. "
-             "If negative, the right and bottom border will be used as a reference. "
-             "The second pair specifies the second anchor point. "
-             "If a sign (+ or -) is given for a value, it is treated as relative to the first anchor point. "
+        help="Specify one or more selection presets that will be applied to each image loaded. "
+             "Integer values are interpreted as absolute pixel counts. "
              "If a percent sign is given for any value, the value is interpreted "
-             "as a percentage of the actual image widths and heights."
+             "as a percentage of the actual image widths and heights instead. Percentages support decimal points. "
+             "The first two values specify the first selection anchor point. "
+             "If negative, the right and bottom border will be used as a reference instead of the default left "
+             "and top border. "
+             "The second pair specifies the second anchor point. "
+             "If a sign (either + or -) is given for a value, it is treated as relative to the first anchor point. "
     )
     parser.add_argument(
         "-v", "--version",
