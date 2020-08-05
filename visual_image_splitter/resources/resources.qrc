@@ -1,6 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
     <file>ui/main_window.ui</file>
-    <file>ui/opened_image_list_item.ui</file>
+    <file>ui/image_list_item_editor.ui</file>
 </qresource>
 </RCC>
